@@ -24,6 +24,20 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>ru.smak</groupId>
+            <artifactId>ConvCoords</artifactId>
+            <version>1.0</version>
+            <systemPath>${project.basedir}/libs/ConvCoords-1.0-lib.jar</systemPath>
+            <scope>system</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.smak</groupId>
+            <artifactId>GraphicsPanel</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/GraphicsPanel-1.0-lib.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
