@@ -1,5 +1,6 @@
 package ru.smak.gui
 
+import ru.smak.graphics.Converter
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.graphics.testFunc
@@ -16,8 +17,7 @@ import javax.swing.GroupLayout
 import javax.swing.JFrame
 
 class MainWindow : JFrame() {
-    private var firstPoint: Point? = null
-    private var prevPoint: Point? = null
+    private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val mainPanel: GraphicsPanel
     init {
@@ -42,24 +42,28 @@ class MainWindow : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    firstPoint = it.point
+                    rect.addPoint(it.point)
                 }
             }
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                firstPoint?.let {first->
+                rect.leftTop?.let {first->
                     val g = mainPanel.graphics
                     g.color = Color.BLACK
                     g.setXORMode(Color.WHITE)
-                    prevPoint?.let { prev ->
-                        val psW = prev.x - first.x
-                        val psH = prev.y - first.y
-                        g.drawRect(first.x, first.y, psW, psH)
-                    }
+                    g.drawRect(first.x, first.y, rect.width, rect.height)
                     g.setPaintMode()
+                    if (rect.isExistst){
+                        val x1 = rect.x1?.let{Converter.xScrToCrt(it, plane)} ?: return@let
+                        val x2 = rect.x2?.let{Converter.xScrToCrt(it, plane)} ?: return@let
+                        val y1 = rect.y1?.let{Converter.yScrToCrt(it, plane)} ?: return@let
+                        val y2 = rect.y2?.let{Converter.yScrToCrt(it, plane)} ?: return@let
+                        plane.xEdges = Pair(x1, x2)
+                        plane.yEdges = Pair(y1, y2)
+                        mainPanel.repaint()
+                    }
                 }
-                firstPoint = null
-                prevPoint = null
+                rect.destroy()
             }
         })
 
@@ -67,20 +71,15 @@ class MainWindow : JFrame() {
             override fun mouseDragged(e: MouseEvent?) {
                 super.mouseDragged(e)
                 e?.let{ curr->
-                    firstPoint?.let { first ->
-                        val sW = curr.x - first.x
-                        val sH = curr.y - first.y
+                    rect.leftTop?.let { first ->
                         val g = mainPanel.graphics
                         g.color = Color.BLACK
                         g.setXORMode(Color.WHITE)
-                        prevPoint?.let {prev ->
-                            val psW = prev.x - first.x
-                            val psH = prev.y - first.y
-                            g.drawRect(first.x, first.y, psW, psH)
-                        }
-                        g.drawRect(first.x, first.y, sW, sH)
+                        if (rect.isExistst)
+                            g.drawRect(first.x, first.y, rect.width, rect.height)
+                        rect.addPoint(curr.point)
+                        rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
                         g.setPaintMode()
-                        prevPoint = curr.point
                     }
                 }
             }
