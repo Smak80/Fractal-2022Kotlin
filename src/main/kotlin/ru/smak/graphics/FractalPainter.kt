@@ -23,6 +23,7 @@ class FractalPainter(
         set(value) {plane.height = value}
 
     private val threadCount = Runtime.getRuntime().availableProcessors()
+    @OptIn(DelicateCoroutinesApi::class)
     private val pool = newFixedThreadPoolContext(threadCount, "PainterPool")
     override fun paint(g: Graphics) = runBlocking{
         //val bt = System.currentTimeMillis()
