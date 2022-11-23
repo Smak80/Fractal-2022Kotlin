@@ -1,7 +1,5 @@
 package ru.smak.math
 
-import java.awt.Color
-
 class Mandelbrot {
     var r: Double = 2.0
     var maxIterations: Int = 200
