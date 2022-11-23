@@ -24,6 +24,11 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-swing</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
             <groupId>ru.smak</groupId>
             <artifactId>ConvCoords</artifactId>
             <version>1.1</version>

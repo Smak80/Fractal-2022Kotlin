@@ -1,5 +1,6 @@
 package ru.smak.graphics
 
+import kotlinx.coroutines.*
 import ru.smak.gui.Painter
 import ru.smak.math.Complex
 import java.awt.Color
@@ -21,35 +22,28 @@ class FractalPainter(
         get() = plane.height
         set(value) {plane.height = value}
 
-    override fun paint(g: Graphics) {
-        val threadCount = Runtime.getRuntime().availableProcessors()
-        val pWidth = width / threadCount + 1
-        List(threadCount) { threadNum ->
-            thread {
-                val currPicWidth = pWidth -
-                            if (threadCount == threadNum + 1) width % threadCount else 0
-                val shift = threadNum * pWidth
-                val pic = BufferedImage(currPicWidth, height, BufferedImage.TYPE_INT_RGB)
+    private val threadCount = Runtime.getRuntime().availableProcessors()
+    private val pool = newFixedThreadPoolContext(threadCount, "PainterPool")
+    override fun paint(g: Graphics) = runBlocking{
+        repeat (width) { i ->
+            launch(pool) {
+                val pic = BufferedImage(1, height, BufferedImage.TYPE_INT_RGB)
                 val picGr = pic.graphics
-                for (i in 0..currPicWidth) {
-                    for (j in 0..height) {
-                        val res = fractal(
-                            Complex(
-                                Converter.xScrToCrt(i + shift, plane),
-                                Converter.yScrToCrt(j, plane)
-                            )
+                for (j in 0..height) {
+                    val res = fractal(
+                        Complex(
+                            Converter.xScrToCrt(i, plane),
+                            Converter.yScrToCrt(j, plane)
                         )
-                        val color = if (res == 1f) Color.BLACK
-                                    else colorFunc(res)
-                        picGr.color = color
-                        picGr.drawLine(i, j, i + 1, j)
-                    }
+                    )
+                    val color = if (res == 1f) Color.BLACK
+                    else colorFunc(res)
+                    picGr.color = color
+                    picGr.drawLine(0, j, 1, j)
                 }
-                synchronized(g){
-                    g.drawImage(pic, shift, 0, null)
-                }
+                g.drawImage(pic, i, 0, null)
             }
-        }.forEach { it.join() }
+        }
     }
 
 }
