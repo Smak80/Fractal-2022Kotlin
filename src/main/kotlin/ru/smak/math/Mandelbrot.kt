@@ -4,7 +4,7 @@ import java.awt.Color
 
 class Mandelbrot {
     var r: Double = 2.0
-    var maxIterations: Int = 100
+    var maxIterations: Int = 200
 
     fun isInSet(c: Complex): Float{
         var cnt = 0

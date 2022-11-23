@@ -4,11 +4,9 @@ import ru.smak.graphics.Converter
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.graphics.testFunc
-import ru.smak.main
 import ru.smak.math.Mandelbrot
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.Point
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter

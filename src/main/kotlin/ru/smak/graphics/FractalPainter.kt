@@ -4,6 +4,8 @@ import ru.smak.gui.Painter
 import ru.smak.math.Complex
 import java.awt.Color
 import java.awt.Graphics
+import java.awt.image.BufferedImage
+import kotlin.concurrent.thread
 
 class FractalPainter(
     var fractal: (Complex)->Float,
@@ -20,17 +22,34 @@ class FractalPainter(
         set(value) {plane.height = value}
 
     override fun paint(g: Graphics) {
-        for (i in 0..width){
-            for (j in 0..height){
-                val res = fractal(Complex(
-                        Converter.xScrToCrt(i, plane),
-                        Converter.yScrToCrt(j, plane)
-                    ))
-                if (res == 1f) g.color = Color.BLACK
-                else g.color = colorFunc(res)
-                g.drawLine(i, j, i+1, j)
+        val threadCount = Runtime.getRuntime().availableProcessors()
+        val pWidth = width / threadCount + 1
+        List(threadCount) { threadNum ->
+            thread {
+                val currPicWidth = pWidth -
+                            if (threadCount == threadNum + 1) width % threadCount else 0
+                val shift = threadNum * pWidth
+                val pic = BufferedImage(currPicWidth, height, BufferedImage.TYPE_INT_RGB)
+                val picGr = pic.graphics
+                for (i in 0..currPicWidth) {
+                    for (j in 0..height) {
+                        val res = fractal(
+                            Complex(
+                                Converter.xScrToCrt(i + shift, plane),
+                                Converter.yScrToCrt(j, plane)
+                            )
+                        )
+                        val color = if (res == 1f) Color.BLACK
+                                    else colorFunc(res)
+                        picGr.color = color
+                        picGr.drawLine(i, j, i + 1, j)
+                    }
+                }
+                synchronized(g){
+                    g.drawImage(pic, shift, 0, null)
+                }
             }
-        }
+        }.forEach { it.join() }
     }
 
 }
