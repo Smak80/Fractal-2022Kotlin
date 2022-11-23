@@ -22,6 +22,7 @@ class FractalPainter(
         set(value) {plane.height = value}
 
     override fun paint(g: Graphics) {
+        val bt = System.currentTimeMillis()
         val threadCount = Runtime.getRuntime().availableProcessors()
         val pWidth = width / threadCount + 1
         List(threadCount) { threadNum ->
@@ -50,6 +51,8 @@ class FractalPainter(
                 }
             }
         }.forEach { it.join() }
+        val et = System.currentTimeMillis()
+        println(et - bt)
     }
 
 }
