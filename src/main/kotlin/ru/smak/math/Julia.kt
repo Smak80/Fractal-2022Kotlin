@@ -1,15 +1,16 @@
 package ru.smak.math
 
-open class Mandelbrot {
-    var r: Double = 2.0
-    var maxIterations: Int = 200
+class Julia : Mandelbrot() {
+    companion object {
+        var selectedPoint = Complex(0.0,0.0)
+    }
 
-    open fun isInSet(c: Complex): Float{
+    override fun isInSet(c : Complex) : Float {
         var cnt = 0
-        var zn = Complex()
+        var zn = c
         val r2 = r * r
         while (++cnt <= maxIterations){
-            zn = zn * zn + c
+            zn = zn * zn + selectedPoint
             if (zn.sqAbs >= r2)
                 return cnt.toFloat() / maxIterations
         }

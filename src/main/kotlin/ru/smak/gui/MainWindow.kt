@@ -4,6 +4,8 @@ import ru.smak.graphics.Converter
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.graphics.testFunc
+import ru.smak.math.Complex
+import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
 import java.awt.Color
 import java.awt.Dimension
@@ -14,7 +16,7 @@ import java.awt.event.MouseEvent
 import javax.swing.*
 
 
-class MainWindow : JFrame() {
+open class MainWindow : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val mainPanel: GraphicsPanel
@@ -33,9 +35,11 @@ class MainWindow : JFrame() {
 
         val plane = Plane(-2.0, 1.0, -1.0, 1.0)
         val fp = FractalPainter(Mandelbrot()::isInSet, ::testFunc, plane)
+        //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
             addPainter(fp)
+            //addPainter(fpj)
             addComponentListener(object : ComponentAdapter() {
                 override fun componentResized(e: ComponentEvent?) {
                     super.componentResized(e)
@@ -44,6 +48,16 @@ class MainWindow : JFrame() {
                 }
             })
         }
+
+        mainPanel.addMouseListener(object: MouseAdapter(){
+            override fun mouseClicked(e: MouseEvent?) {
+                super.mouseClicked(e)
+                SecondWindow().apply {
+                    Julia.selectedPoint = Complex(Converter.xScrToCrt(e!!.x, plane), Converter.yScrToCrt(e.y, plane))
+                    isVisible = true
+                }
+            }
+        })
 
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
