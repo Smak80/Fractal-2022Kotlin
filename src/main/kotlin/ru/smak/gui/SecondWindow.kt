@@ -15,7 +15,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
 
-class SecondWindow() : JFrame() {
+class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val secondPanel: GraphicsPanel
@@ -26,7 +26,7 @@ class SecondWindow() : JFrame() {
         minimumSize = minSz
 
         val plane = Plane(-2.0, 1.0, -1.0, 1.0)
-        val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
+        val fpj = FractalPainter(Julia()::isInSet, colorScheme, plane)
         secondPanel = GraphicsPanel().apply {
             background = Color.WHITE
             addPainter(fpj)
