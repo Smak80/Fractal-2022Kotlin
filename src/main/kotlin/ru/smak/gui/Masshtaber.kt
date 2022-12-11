@@ -62,7 +62,7 @@ fun makeOneToOne(plane : Plane, x0: Double,x1:Double,y0:Double,y1:Double,dimensi
     else
     {
         val dy = (dimension.height*x2w-Math.abs((y1-y0)))/2
-        plane.yEdges=Pair(y0+dy,y1-dy)
+        plane.yEdges=Pair(Math.max(y0,y1)+dy,Math.min(y1,y0)-dy)
         plane.xEdges=Pair(x0,x1)
     }
 }
