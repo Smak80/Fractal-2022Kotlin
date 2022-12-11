@@ -6,6 +6,7 @@ import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
@@ -18,6 +19,7 @@ open class MainWindow : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val mainPanel: GraphicsPanel
+    val trgsz = TargetSz()
 
     init {
         val menuBar = JMenuBar().apply {
@@ -33,21 +35,24 @@ open class MainWindow : JFrame() {
 
         val colorScheme = ColorFuncs[Random.nextInt(ColorFuncs.size)]
         val plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        trgsz.getTargetFromPlane(plane)
         val fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
         //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
             addPainter(fp)
             //addPainter(fpj)
-            addComponentListener(object : ComponentAdapter() {
-                override fun componentResized(e: ComponentEvent?) {
-                    super.componentResized(e)
-                    plane.width = width
-                    plane.height = height
-                }
-            })
+
         }
 
+        mainPanel.addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent?) {
+                super.componentResized(e)
+                plane.width=width
+                plane.height=height
+                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+            }
+        })
         mainPanel.addMouseListener(object: MouseAdapter(){
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
@@ -58,16 +63,20 @@ open class MainWindow : JFrame() {
             }
         })
 
+        var mouseStart: Point? = null
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
+                    if(it.button==MouseEvent.BUTTON3) mouseStart=e.point
+                    else
                     rect.addPoint(it.point)
                 }
             }
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
+                mouseStart=null
                 rect.leftTop?.let { first ->
                     val g = mainPanel.graphics
                     g.color = Color.BLACK
@@ -79,8 +88,7 @@ open class MainWindow : JFrame() {
                         val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                         val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                         val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        plane.xEdges = Pair(x1, x2)
-                        plane.yEdges = Pair(y1, y2)
+                        makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
                         mainPanel.repaint()
                     }
                 }
@@ -91,16 +99,29 @@ open class MainWindow : JFrame() {
         mainPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent?) {
                 super.mouseDragged(e)
-                e?.let { curr ->
-                    rect.leftTop?.let { first ->
-                        val g = mainPanel.graphics
-                        g.color = Color.BLACK
-                        g.setXORMode(Color.WHITE)
-                        if (rect.isExistst)
-                            g.drawRect(first.x, first.y, rect.width, rect.height)
-                        rect.addPoint(curr.point)
-                        rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
-                        g.setPaintMode()
+                if(e!=null && mouseStart!=null){
+                    val x = mouseStart?.x
+                    val y = mouseStart?.y
+                    if (x != null && y != null) {
+                        val dx = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(x,plane)
+                        val dy = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(y,plane)
+                        trgsz.MoveToD(dx,dy,plane)//Двигает панель и таргет сз
+                        makeOneToOne(plane,trgsz,mainPanel.size)//Делает панель мастштабом 1 к 1
+                        mouseStart = e.point
+                        mainPanel.repaint()
+                    }
+                }else {
+                    e?.let { curr ->
+                        rect.leftTop?.let { first ->
+                            val g = mainPanel.graphics
+                            g.color = Color.BLACK
+                            g.setXORMode(Color.WHITE)
+                            if (rect.isExistst)
+                                g.drawRect(first.x, first.y, rect.width, rect.height)
+                            rect.addPoint(curr.point)
+                            rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
+                            g.setPaintMode()
+                        }
                     }
                 }
             }
@@ -139,6 +160,7 @@ open class MainWindow : JFrame() {
             pplLabel1.text = "Потасьев Никита"
             pplLabel2 = JLabel()
             pplLabel2.text = "Щербанев Дмитрий"
+
 
             minimumSize = minSz
 
