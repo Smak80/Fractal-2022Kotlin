@@ -21,6 +21,8 @@ open class MainWindow : JFrame() {
     val minSz = Dimension(600, 450)
     val mainPanel: GraphicsPanel
     val trgsz = TargetSz()
+    private var startPoint: Point? = null
+    private var numButtonPressed: Int = 0
 
     init {
         val menuBar = JMenuBar().apply {
@@ -54,14 +56,15 @@ open class MainWindow : JFrame() {
                 makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
+
         mainPanel.addMouseListener(object: MouseAdapter(){
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
                 e?.let {
-                    if (e.button == MouseEvent.BUTTON1) {
+                    if (it.button == MouseEvent.BUTTON1) {
                         SecondWindow(colorScheme).apply {
                             Julia.selectedPoint =
-                                Complex(Converter.xScrToCrt(e.x, plane), Converter.yScrToCrt(e.y, plane))
+                                Complex(Converter.xScrToCrt(it.x, plane), Converter.yScrToCrt(it.y, plane))
                             isVisible = true
                         }
                     }
@@ -73,35 +76,46 @@ open class MainWindow : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    rect.addPoint(it.point)
+                    if (it.button == MouseEvent.BUTTON1)
+                        rect.addPoint(it.point)
+                    else if (it.button == MouseEvent.BUTTON3)
+                        startPoint = it.point
+                    numButtonPressed = it.button
                 }
             }
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                rect.leftTop?.let { first ->
-                    val g = mainPanel.graphics
-                    g.color = Color.BLACK
-                    g.setXORMode(Color.WHITE)
-                    g.drawRect(first.x, first.y, rect.width, rect.height)
-                    g.setPaintMode()
-                    if (rect.isExistst) {
-                        val x1 = rect.x1?.let { Converter.xScrToCrt(it, plane) } ?: return@let
-                        val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
-                        val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
-                        mainPanel.repaint()
+                if (numButtonPressed == MouseEvent.BUTTON1)
+                {
+                    rect.leftTop?.let { first ->
+                        val g = mainPanel.graphics
+                        g.color = Color.BLACK
+                        g.setXORMode(Color.WHITE)
+                        g.drawRect(first.x, first.y, rect.width, rect.height)
+                        g.setPaintMode()
+                        if (rect.isExistst) {
+                            val x1 = rect.x1?.let { Converter.xScrToCrt(it, plane) } ?: return@let
+                            val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
+                            val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
+                            mainPanel.repaint()
+                        }
                     }
+                    rect.destroy()
+                } else if(numButtonPressed == MouseEvent.BUTTON3)
+                {
+                    startPoint = null
                 }
-                rect.destroy()
+                numButtonPressed = 0
             }
         })
 
         mainPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent?) {
                 super.mouseDragged(e)
-
+                if (numButtonPressed == MouseEvent.BUTTON1) {
                     e?.let { curr ->
                         rect.leftTop?.let { first ->
                             val g = mainPanel.graphics
@@ -112,8 +126,21 @@ open class MainWindow : JFrame() {
                             rect.addPoint(curr.point)
                             rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
                             g.setPaintMode()
+                        }}
+                }
+                else if (numButtonPressed == MouseEvent.BUTTON3)
+                {
+                    if (e != null) {
+                        startPoint?.let {
+                            val shiftX = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(it.x,plane)
+                            val shiftY = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(it.y,plane)
+                            trgsz.shiftImage(shiftX, shiftY, plane)
+                            makeOneToOne(plane,trgsz, mainPanel.size)
+                            startPoint = e.point
+                            mainPanel.repaint()
                         }
                     }
+                }
             }
         })
 

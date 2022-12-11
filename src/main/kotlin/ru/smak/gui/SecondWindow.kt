@@ -9,6 +9,7 @@ import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
@@ -20,6 +21,8 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
     val minSz = Dimension(600, 450)
     val secondPanel: GraphicsPanel
     val trgsz = TargetSz()
+    private var startPoint: Point? = null
+    private var numButtonPressed: Int = 0
 
     init {
 
@@ -45,44 +48,69 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    rect.addPoint(it.point)
+                    if (it.button == MouseEvent.BUTTON1)
+                        rect.addPoint(it.point)
+                    else if (it.button == MouseEvent.BUTTON3)
+                        startPoint = it.point
+                    numButtonPressed = it.button
                 }
             }
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                rect.leftTop?.let { first ->
-                    val g = secondPanel.graphics
-                    g.color = Color.BLACK
-                    g.setXORMode(Color.WHITE)
-                    g.drawRect(first.x, first.y, rect.width, rect.height)
-                    g.setPaintMode()
-                    if (rect.isExistst) {
-                        val x1 = rect.x1?.let { Converter.xScrToCrt(it, plane) } ?: return@let
-                        val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
-                        val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        makeOneToOne(plane,x1,x2,y1,y2,secondPanel.size,trgsz)
-                        secondPanel.repaint()
+                if (numButtonPressed == MouseEvent.BUTTON1)
+                {
+                    rect.leftTop?.let { first ->
+                        val g = secondPanel.graphics
+                        g.color = Color.BLACK
+                        g.setXORMode(Color.WHITE)
+                        g.drawRect(first.x, first.y, rect.width, rect.height)
+                        g.setPaintMode()
+                        if (rect.isExistst) {
+                            val x1 = rect.x1?.let { Converter.xScrToCrt(it, plane) } ?: return@let
+                            val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
+                            val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            makeOneToOne(plane,x1,x2,y1,y2,secondPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
+                            secondPanel.repaint()
+                        }
                     }
+                    rect.destroy()
+                } else if(numButtonPressed == MouseEvent.BUTTON3)
+                {
+                    startPoint = null
                 }
-                rect.destroy()
+                numButtonPressed = 0
             }
         })
 
         secondPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent?) {
                 super.mouseDragged(e)
-                e?.let { curr ->
-                    rect.leftTop?.let { first ->
-                        val g = secondPanel.graphics
-                        g.color = Color.BLACK
-                        g.setXORMode(Color.WHITE)
-                        if (rect.isExistst)
-                            g.drawRect(first.x, first.y, rect.width, rect.height)
-                        rect.addPoint(curr.point)
-                        rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
-                        g.setPaintMode()
+                if (numButtonPressed == MouseEvent.BUTTON1) {
+                    e?.let { curr ->
+                        rect.leftTop?.let { first ->
+                            val g = secondPanel.graphics
+                            g.color = Color.BLACK
+                            g.setXORMode(Color.WHITE)
+                            if (rect.isExistst)
+                                g.drawRect(first.x, first.y, rect.width, rect.height)
+                            rect.addPoint(curr.point)
+                            rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
+                            g.setPaintMode()
+                        }}
+                }
+                else if (numButtonPressed == MouseEvent.BUTTON3)
+                {
+                    if (e != null) {
+                        startPoint?.let {
+                            val shiftX = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(it.x,plane)
+                            val shiftY = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(it.y,plane)
+                            trgsz.shiftImage(shiftX, shiftY, plane)
+                            makeOneToOne(plane,trgsz, secondPanel.size)
+                            startPoint = e.point
+                            secondPanel.repaint()
+                        }
                     }
                 }
             }
