@@ -48,8 +48,8 @@ open class MainWindow : JFrame() {
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width=width
-                plane.height=height
+                plane.width=mainPanel.width
+                plane.height=mainPanel.height
                 makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
