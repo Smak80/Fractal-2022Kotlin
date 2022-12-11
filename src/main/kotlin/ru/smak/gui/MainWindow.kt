@@ -27,6 +27,9 @@ open class MainWindow : JFrame() {
             add(createColorMenu())
             add(createCtrlZButton())
             add(createAboutButton())
+            add(createOpenButton())
+            add(createSaveButton())
+            add(createDynamicalItsButton())
         }
 
         jMenuBar = menuBar
@@ -198,7 +201,6 @@ open class MainWindow : JFrame() {
                     val frame = AboutWindow()
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
-
                 }
             }
         })
@@ -213,8 +215,8 @@ open class MainWindow : JFrame() {
         val mClr = JColorChooser()
         val sClr = JColorChooser()
 
-        var firstColor : Color
-        var secondColor : Color
+        var firstColor: Color
+        var secondColor: Color
 
         firstColor = mClr.selectionModel.selectedColor
         secondColor = sClr.selectionModel.selectedColor
@@ -224,16 +226,32 @@ open class MainWindow : JFrame() {
 
 
         return colorMenu
-
     }
-
+    private fun createOpenButton(): JButton {
+        val openButton = JButton("Открыть")
+     var fileChooser=JFileChooser()
+        openButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                fileChooser.dialogTitle = "Выбор директории"
+               fileChooser.showOpenDialog(this@MainWindow)
+                }
+            })
+return openButton
+    }
+    private fun createSaveButton(): JButton{
+        val saveButton = JButton("Сохранить")
+        return saveButton
+    }
+    private fun createDynamicalItsButton(): JButton {
+        val dynIt = JButton("Динамическая итерация")
+        return dynIt
+    }
     private fun createCtrlZButton(): JButton {
         val ctrlzButton = JButton("Отменить предыдущее действие")
 
         return ctrlzButton
-
     }
-
     override fun setVisible(b: Boolean) {
         super.setVisible(b)
         mainPanel.graphics.run {
