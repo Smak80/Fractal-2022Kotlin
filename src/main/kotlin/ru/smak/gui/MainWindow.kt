@@ -63,20 +63,16 @@ open class MainWindow : JFrame() {
             }
         })
 
-        var mouseStart: Point? = null
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    if(it.button==MouseEvent.BUTTON3) mouseStart=e.point
-                    else
                     rect.addPoint(it.point)
                 }
             }
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                mouseStart=null
                 rect.leftTop?.let { first ->
                     val g = mainPanel.graphics
                     g.color = Color.BLACK
@@ -99,18 +95,7 @@ open class MainWindow : JFrame() {
         mainPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent?) {
                 super.mouseDragged(e)
-                if(e!=null && mouseStart!=null){
-                    val x = mouseStart?.x
-                    val y = mouseStart?.y
-                    if (x != null && y != null) {
-                        val dx = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(x,plane)
-                        val dy = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(y,plane)
-                        trgsz.MoveToD(dx,dy,plane)//Двигает панель и таргет сз
-                        makeOneToOne(plane,trgsz,mainPanel.size)//Делает панель мастштабом 1 к 1
-                        mouseStart = e.point
-                        mainPanel.repaint()
-                    }
-                }else {
+
                     e?.let { curr ->
                         rect.leftTop?.let { first ->
                             val g = mainPanel.graphics
@@ -123,7 +108,6 @@ open class MainWindow : JFrame() {
                             g.setPaintMode()
                         }
                     }
-                }
             }
         })
 
