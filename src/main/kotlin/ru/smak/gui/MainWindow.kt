@@ -56,9 +56,12 @@ open class MainWindow : JFrame() {
         mainPanel.addMouseListener(object: MouseAdapter(){
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
-                SecondWindow(colorScheme).apply {
-                    Julia.selectedPoint = Complex(Converter.xScrToCrt(e!!.x, plane), Converter.yScrToCrt(e.y, plane))
-                    isVisible = true
+                e?.let {
+                    SecondWindow(colorScheme).apply {
+                        Julia.selectedPoint =
+                            Complex(Converter.xScrToCrt(e.x, plane), Converter.yScrToCrt(e.y, plane))
+                        isVisible = true
+                    }
                 }
             }
         })
