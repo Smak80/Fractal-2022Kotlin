@@ -4,6 +4,7 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
+import java.awt.Button
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Point
@@ -56,9 +57,14 @@ open class MainWindow : JFrame() {
         mainPanel.addMouseListener(object: MouseAdapter(){
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
-                SecondWindow(colorScheme).apply {
-                    Julia.selectedPoint = Complex(Converter.xScrToCrt(e!!.x, plane), Converter.yScrToCrt(e.y, plane))
-                    isVisible = true
+                e?.let {
+                    if (e.button == MouseEvent.BUTTON1) {
+                        SecondWindow(colorScheme).apply {
+                            Julia.selectedPoint =
+                                Complex(Converter.xScrToCrt(e.x, plane), Converter.yScrToCrt(e.y, plane))
+                            isVisible = true
+                        }
+                    }
                 }
             }
         })

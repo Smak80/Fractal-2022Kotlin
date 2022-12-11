@@ -19,6 +19,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val secondPanel: GraphicsPanel
+    val trgsz = TargetSz()
 
     init {
 
@@ -27,6 +28,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
 
         val plane = Plane(-2.0, 1.0, -1.0, 1.0)
         val fpj = FractalPainter(Julia()::isInSet, colorScheme, plane)
+        trgsz.getTargetFromPlane(plane)
         secondPanel = GraphicsPanel().apply {
             background = Color.WHITE
             addPainter(fpj)
@@ -60,8 +62,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
                         val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                         val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                         val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                        plane.xEdges = Pair(x1, x2)
-                        plane.yEdges = Pair(y1, y2)
+                        makeOneToOne(plane,x1,x2,y1,y2,secondPanel.size,trgsz)
                         secondPanel.repaint()
                     }
                 }
