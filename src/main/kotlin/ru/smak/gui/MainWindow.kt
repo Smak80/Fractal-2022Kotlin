@@ -53,6 +53,7 @@ open class MainWindow : JFrame() {
 
         }
 
+
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
@@ -62,7 +63,8 @@ open class MainWindow : JFrame() {
             }
         })
 
-        mainPanel.addMouseListener(object: MouseAdapter(){
+        mainPanel.addMouseListener(object : MouseAdapter() {
+
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
                 e?.let {
@@ -91,8 +93,7 @@ open class MainWindow : JFrame() {
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                if (numButtonPressed == MouseEvent.BUTTON1)
-                {
+                if (numButtonPressed == MouseEvent.BUTTON1) {
                     rect.leftTop?.let { first ->
                         val g = mainPanel.graphics
                         g.color = Color.BLACK
@@ -104,13 +105,20 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                            makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
+                            makeOneToOne(
+                                plane,
+                                x1,
+                                x2,
+                                y1,
+                                y2,
+                                mainPanel.size,
+                                trgsz
+                            )//Делает панель мастштабом 1 к 1 и меняет trgsz
                             mainPanel.repaint()
                         }
                     }
                     rect.destroy()
-                } else if(numButtonPressed == MouseEvent.BUTTON3)
-                {
+                } else if (numButtonPressed == MouseEvent.BUTTON3) {
                     startPoint = null
                 }
                 numButtonPressed = 0
@@ -131,16 +139,15 @@ open class MainWindow : JFrame() {
                             rect.addPoint(curr.point)
                             rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
                             g.setPaintMode()
-                        }}
-                }
-                else if (numButtonPressed == MouseEvent.BUTTON3)
-                {
+                        }
+                    }
+                } else if (numButtonPressed == MouseEvent.BUTTON3) {
                     if (e != null) {
                         startPoint?.let {
-                            val shiftX = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(it.x,plane)
-                            val shiftY = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(it.y,plane)
+                            val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
+                            val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
                             trgsz.shiftImage(shiftX, shiftY, plane)
-                            makeOneToOne(plane,trgsz, mainPanel.size)
+                            makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
                         }
@@ -279,7 +286,7 @@ open class MainWindow : JFrame() {
         val fClr = JColorChooser()
         val sClr = JColorChooser()
 
-        fClr.addPropertyChangeListener{
+        fClr.addPropertyChangeListener {
             firstColor = fClr.selectionModel.selectedColor
             repaint()
         }
@@ -291,7 +298,6 @@ open class MainWindow : JFrame() {
 
         colorMenu.add(fClr)
         colorMenu.add(sClr)
-
 
         return colorMenu
     }
