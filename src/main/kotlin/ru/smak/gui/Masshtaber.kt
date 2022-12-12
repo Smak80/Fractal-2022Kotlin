@@ -24,13 +24,12 @@ class TargetSz() {
         plane.xEdges=Pair(targetXMin,targetXMax)
     }
     //Двигает панель и таргет сз
-    fun MoveToD(dx: Double, dy: Double,plane: Plane) {
-        targetXMin-=dx
-        targetXMax-=dx
-        targetYMin-=dy
-        targetYMax-=dy
+    fun shiftImage(shiftX: Double, shiftY: Double, plane: Plane) {
+        targetXMin -= shiftX
+        targetXMax -= shiftX
+        targetYMin -= shiftY
+        targetYMax -= shiftY
         makePlaneFromTarger(plane)
-
     }
 }
 //Меняет целевой размер
