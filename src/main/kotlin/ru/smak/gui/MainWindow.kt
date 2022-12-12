@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 open class MainWindow : JFrame() {
     private var rect: Rectangle = Rectangle()
-    val minSz = Dimension(600, 450)
+    val minSz = Dimension(1000, 450)
     val mainPanel: GraphicsPanel
     val trgsz = TargetSz()
     private var startPoint: Point? = null
@@ -27,12 +27,13 @@ open class MainWindow : JFrame() {
 
     init {
         val menuBar = JMenuBar().apply {
-            add(createColorMenu())
-            add(createCtrlZButton())
-            add(createAboutButton())
             add(createOpenButton())
             add(createSaveButton())
+            add(createColorMenu())
             add(createDynamicalItsButton())
+            add(createCtrlZButton())
+            add(createAboutButton())
+
         }
 
         jMenuBar = menuBar
@@ -186,7 +187,7 @@ open class MainWindow : JFrame() {
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
-            g2d.drawString("Над проектом работали", width/4, 50)
+            g2d.drawString("Над проектом работали", width / 4, 50)
 
             try {
                 Thread.sleep(200)
@@ -283,7 +284,7 @@ open class MainWindow : JFrame() {
             repaint()
         }
 
-        sClr.addPropertyChangeListener{
+        sClr.addPropertyChangeListener {
             secondColor = sClr.selectionModel.selectedColor
             repaint()
         }
@@ -294,26 +295,30 @@ open class MainWindow : JFrame() {
 
         return colorMenu
     }
+
     private fun createOpenButton(): JButton {
         val openButton = JButton("Открыть")
-     var fileChooser=JFileChooser()
+        var fileChooser = JFileChooser()
         openButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 fileChooser.dialogTitle = "Выбор директории"
-               fileChooser.showOpenDialog(this@MainWindow)
-                }
-            })
-return openButton
+                fileChooser.showOpenDialog(this@MainWindow)
+            }
+        })
+        return openButton
     }
-    private fun createSaveButton(): JButton{
+
+    private fun createSaveButton(): JButton {
         val saveButton = JButton("Сохранить")
         return saveButton
     }
+
     private fun createDynamicalItsButton(): JButton {
         val dynIt = JButton("Динамическая итерация")
         return dynIt
     }
+
     private fun createCtrlZButton(): JButton {
         val ctrlzButton = JButton("Отменить предыдущее действие")
 
