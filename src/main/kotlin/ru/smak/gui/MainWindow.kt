@@ -4,14 +4,12 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
-import java.awt.Button
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Point
+import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.File
 import javax.swing.*
 import kotlin.random.Random
 
@@ -23,6 +21,9 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
+
+    var firstColor: Color = Color.BLACK
+    var secondColor: Color = Color.WHITE
 
     init {
         val menuBar = JMenuBar().apply {
@@ -54,9 +55,9 @@ open class MainWindow : JFrame() {
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width=mainPanel.width
-                plane.height=mainPanel.height
-                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+                plane.width = mainPanel.width
+                plane.height = mainPanel.height
+                makeOneToOne(plane, trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
 
@@ -165,21 +166,60 @@ open class MainWindow : JFrame() {
         }
     }
 
+    class Text_Animation : JPanel() {
+        var k = 0
+        var l = 100
+
+        override fun paint(gp: Graphics) {
+            super.paint(gp)
+            val g2d = gp as Graphics2D
+
+            val file = File("Font.ttf")
+            val font = Font.createFont(Font.TRUETYPE_FONT, file)
+            val sFont = font.deriveFont(25f)
+            g2d.color = Color.RED
+            g2d.font = sFont
+
+            val pplArray = listOf<String>(
+                "Потасьев Никита", "Щербанев Дмитрий",
+                "Балакин Александр", "Иванов Владислав", "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна"
+            )
+
+            pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
+            g2d.drawString("Над проектом работали", width/4, 50)
+
+            try {
+                Thread.sleep(200)
+                k += 20
+                if (k > width) {
+                    k = 0
+                }
+                repaint()
+
+            } catch (ex: InterruptedException) {
+                JOptionPane.showMessageDialog(this, ex)
+            }
+        }
+    }
+
     class AboutWindow : JFrame() {
         val minSz = Dimension(400, 450)
 
         val commonLabel: JLabel
-        val pplLabel1: JLabel
-        val pplLabel2: JLabel
+        var pplLabel = JTextArea()
 
 
         init {
             commonLabel = JLabel()
             commonLabel.text = "Над проектом работали : "
-            pplLabel1 = JLabel()
-            pplLabel1.text = "Потасьев Никита"
-            pplLabel2 = JLabel()
-            pplLabel2.text = "Щербанев Дмитрий"
+            pplLabel.isEnabled = false
+            pplLabel.text = "Потасьев Никита \n" +
+                    "Щербанев Дмитрий \n" +
+                    "Балакин Александр \n" +
+                    "Иванов Владислав \n" +
+                    "Хусаинов Данил \n" +
+                    "Даянов Рамиль \n" +
+                    "Королева Ульяна"
 
 
             minimumSize = minSz
@@ -195,8 +235,7 @@ open class MainWindow : JFrame() {
                         .addGap(16)
                         .addGroup(
                             createParallelGroup()
-                                .addComponent(pplLabel1, SHRINK, SHRINK, SHRINK)
-                                .addComponent(pplLabel2, SHRINK, SHRINK, SHRINK)
+                                .addComponent(pplLabel, SHRINK, SHRINK, SHRINK)
                         )
                         .addGap(8)
                 )
@@ -207,11 +246,7 @@ open class MainWindow : JFrame() {
                         .addGroup(
                             createParallelGroup()
                                 .addComponent(commonLabel, SHRINK, SHRINK, SHRINK)
-                                .addComponent(pplLabel1, SHRINK, SHRINK, SHRINK)
-                        )
-                        .addGroup(
-                            createParallelGroup()
-                                .addComponent(pplLabel2, SHRINK, SHRINK, SHRINK)
+                                .addComponent(pplLabel, SHRINK, SHRINK, SHRINK)
                         )
                         .addGap(8)
                 )
@@ -225,7 +260,9 @@ open class MainWindow : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    val frame = AboutWindow()
+                    val frame = JFrame()
+                    frame.minimumSize = Dimension(1200, 450)
+                    frame.add(Text_Animation())
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
                 }
@@ -235,20 +272,23 @@ open class MainWindow : JFrame() {
 
     }
 
-
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
 
-        val mClr = JColorChooser()
+        val fClr = JColorChooser()
         val sClr = JColorChooser()
 
-        var firstColor: Color
-        var secondColor: Color
+        fClr.addPropertyChangeListener{
+            firstColor = fClr.selectionModel.selectedColor
+            repaint()
+        }
 
-        firstColor = mClr.selectionModel.selectedColor
-        secondColor = sClr.selectionModel.selectedColor
+        sClr.addPropertyChangeListener{
+            secondColor = sClr.selectionModel.selectedColor
+            repaint()
+        }
 
-        colorMenu.add(mClr)
+        colorMenu.add(fClr)
         colorMenu.add(sClr)
 
 
@@ -279,6 +319,7 @@ return openButton
 
         return ctrlzButton
     }
+
     override fun setVisible(b: Boolean) {
         super.setVisible(b)
         mainPanel.graphics.run {
