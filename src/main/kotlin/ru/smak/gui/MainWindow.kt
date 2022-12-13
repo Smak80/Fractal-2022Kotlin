@@ -4,6 +4,12 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
+import ru.smak.tools.FractalData
+import ru.smak.tools.FractalDataFileLoader
+import ru.smak.tools.FractalDataFileSaver
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Point
 import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -15,6 +21,8 @@ import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
+    private val plane: Plane
+    private val fp: FractalPainter
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(1000, 450)
     val mainPanel: GraphicsPanel
@@ -27,13 +35,13 @@ open class MainWindow : JFrame() {
 
     init {
         val menuBar = JMenuBar().apply {
+            add(createFileMenu())
             add(createOpenButton())
             add(createSaveButton())
             add(createColorMenu())
             add(createDynamicalItsButton())
             add(createCtrlZButton())
             add(createAboutButton())
-
         }
 
         jMenuBar = menuBar
@@ -42,9 +50,9 @@ open class MainWindow : JFrame() {
         minimumSize = minSz
 
         val colorScheme = ColorFuncs[Random.nextInt(ColorFuncs.size)]
-        val plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        plane = Plane(-2.0, 1.0, -1.0, 1.0)
         trgsz.getTargetFromPlane(plane)
-        val fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
+        fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
         //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
@@ -52,7 +60,6 @@ open class MainWindow : JFrame() {
             //addPainter(fpj)
 
         }
-
 
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
@@ -63,8 +70,7 @@ open class MainWindow : JFrame() {
             }
         })
 
-        mainPanel.addMouseListener(object : MouseAdapter() {
-
+        mainPanel.addMouseListener(object: MouseAdapter(){
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
                 e?.let {
@@ -210,6 +216,35 @@ open class MainWindow : JFrame() {
         }
     }
 
+    private fun createFileMenu() : JMenu {
+        val openItem = JMenuItem("Открыть")
+        openItem.addActionListener {
+            val fractalData = FractalDataFileLoader.loadData()
+            if (fractalData != null) {
+                fp.plane = Plane(
+                    fractalData.xMin,
+                    fractalData.xMax,
+                    fractalData.yMin,
+                    fractalData.yMax
+                )
+                fp.paint(this.graphics)
+            }
+        }
+        
+        val selfFormatMenuItem = JMenuItem("Сохранить")
+        selfFormatMenuItem.addActionListener {
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax /*, bgClr.selection.actionCommand*/ )
+            val fractalSaver = FractalDataFileSaver(fractalData)
+        }
+
+        val fileMenu = JMenu("Файл")
+        fileMenu.add(openItem)
+        fileMenu.addSeparator()
+        fileMenu.add(selfFormatMenuItem)
+        
+        return fileMenu
+    }
+
     class AboutWindow : JFrame() {
         val minSz = Dimension(400, 450)
 
@@ -273,12 +308,14 @@ open class MainWindow : JFrame() {
                     frame.add(Text_Animation())
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
+
                 }
             }
         })
         return aboutButton
 
     }
+
 
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
