@@ -4,31 +4,36 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
-import java.awt.Button
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Point
+import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.File
 import javax.swing.*
 import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
     private var rect: Rectangle = Rectangle()
-    val minSz = Dimension(600, 450)
+    val minSz = Dimension(1000, 450)
     val mainPanel: GraphicsPanel
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
 
+    var firstColor: Color = Color.BLACK
+    var secondColor: Color = Color.WHITE
+
     init {
         val menuBar = JMenuBar().apply {
+            add(createOpenButton())
+            add(createSaveButton())
             add(createColorMenu())
+            add(createDynamicalItsButton())
             add(createCtrlZButton())
             add(createAboutButton())
+
         }
 
         jMenuBar = menuBar
@@ -48,16 +53,18 @@ open class MainWindow : JFrame() {
 
         }
 
+
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width=mainPanel.width
-                plane.height=mainPanel.height
-                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+                plane.width = mainPanel.width
+                plane.height = mainPanel.height
+                makeOneToOne(plane, trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
 
-        mainPanel.addMouseListener(object: MouseAdapter(){
+        mainPanel.addMouseListener(object : MouseAdapter() {
+
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
                 e?.let {
@@ -86,8 +93,7 @@ open class MainWindow : JFrame() {
 
             override fun mouseReleased(e: MouseEvent?) {
                 super.mouseReleased(e)
-                if (numButtonPressed == MouseEvent.BUTTON1)
-                {
+                if (numButtonPressed == MouseEvent.BUTTON1) {
                     rect.leftTop?.let { first ->
                         val g = mainPanel.graphics
                         g.color = Color.BLACK
@@ -99,18 +105,20 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                            val sq: Int = plane.height * plane.width
-                            val new_sq = (x2-x1) * (y1-y2)
-                            var d: Int = 100
-                            if (sq/new_sq<100) d = (sq/new_sq).toInt()
-                            Mandelbrot.maxIterations += d
-                            makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
+                            makeOneToOne(
+                                plane,
+                                x1,
+                                x2,
+                                y1,
+                                y2,
+                                mainPanel.size,
+                                trgsz
+                            )//Делает панель мастштабом 1 к 1 и меняет trgsz
                             mainPanel.repaint()
                         }
                     }
                     rect.destroy()
-                } else if(numButtonPressed == MouseEvent.BUTTON3)
-                {
+                } else if (numButtonPressed == MouseEvent.BUTTON3) {
                     startPoint = null
                 }
                 numButtonPressed = 0
@@ -131,16 +139,15 @@ open class MainWindow : JFrame() {
                             rect.addPoint(curr.point)
                             rect.leftTop?.let { f -> g.drawRect(f.x, f.y, rect.width, rect.height) }
                             g.setPaintMode()
-                        }}
-                }
-                else if (numButtonPressed == MouseEvent.BUTTON3)
-                {
+                        }
+                    }
+                } else if (numButtonPressed == MouseEvent.BUTTON3) {
                     if (e != null) {
                         startPoint?.let {
-                            val shiftX = Converter.xScrToCrt(e.x,plane) - Converter.xScrToCrt(it.x,plane)
-                            val shiftY = Converter.yScrToCrt(e.y,plane) - Converter.yScrToCrt(it.y,plane)
+                            val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
+                            val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
                             trgsz.shiftImage(shiftX, shiftY, plane)
-                            makeOneToOne(plane,trgsz, mainPanel.size)
+                            makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
                         }
@@ -167,21 +174,60 @@ open class MainWindow : JFrame() {
         }
     }
 
+    class Text_Animation : JPanel() {
+        var k = 0
+        var l = 100
+
+        override fun paint(gp: Graphics) {
+            super.paint(gp)
+            val g2d = gp as Graphics2D
+
+            val file = File("Font.ttf")
+            val font = Font.createFont(Font.TRUETYPE_FONT, file)
+            val sFont = font.deriveFont(25f)
+            g2d.color = Color.RED
+            g2d.font = sFont
+
+            val pplArray = listOf<String>(
+                "Потасьев Никита", "Щербанев Дмитрий",
+                "Балакин Александр", "Иванов Владислав", "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна"
+            )
+
+            pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
+            g2d.drawString("Над проектом работали", width / 4, 50)
+
+            try {
+                Thread.sleep(200)
+                k += 20
+                if (k > width) {
+                    k = 0
+                }
+                repaint()
+
+            } catch (ex: InterruptedException) {
+                JOptionPane.showMessageDialog(this, ex)
+            }
+        }
+    }
+
     class AboutWindow : JFrame() {
         val minSz = Dimension(400, 450)
 
         val commonLabel: JLabel
-        val pplLabel1: JLabel
-        val pplLabel2: JLabel
+        var pplLabel = JTextArea()
 
 
         init {
             commonLabel = JLabel()
             commonLabel.text = "Над проектом работали : "
-            pplLabel1 = JLabel()
-            pplLabel1.text = "Потасьев Никита"
-            pplLabel2 = JLabel()
-            pplLabel2.text = "Щербанев Дмитрий"
+            pplLabel.isEnabled = false
+            pplLabel.text = "Потасьев Никита \n" +
+                    "Щербанев Дмитрий \n" +
+                    "Балакин Александр \n" +
+                    "Иванов Владислав \n" +
+                    "Хусаинов Данил \n" +
+                    "Даянов Рамиль \n" +
+                    "Королева Ульяна"
 
 
             minimumSize = minSz
@@ -197,8 +243,7 @@ open class MainWindow : JFrame() {
                         .addGap(16)
                         .addGroup(
                             createParallelGroup()
-                                .addComponent(pplLabel1, SHRINK, SHRINK, SHRINK)
-                                .addComponent(pplLabel2, SHRINK, SHRINK, SHRINK)
+                                .addComponent(pplLabel, SHRINK, SHRINK, SHRINK)
                         )
                         .addGap(8)
                 )
@@ -209,11 +254,7 @@ open class MainWindow : JFrame() {
                         .addGroup(
                             createParallelGroup()
                                 .addComponent(commonLabel, SHRINK, SHRINK, SHRINK)
-                                .addComponent(pplLabel1, SHRINK, SHRINK, SHRINK)
-                        )
-                        .addGroup(
-                            createParallelGroup()
-                                .addComponent(pplLabel2, SHRINK, SHRINK, SHRINK)
+                                .addComponent(pplLabel, SHRINK, SHRINK, SHRINK)
                         )
                         .addGap(8)
                 )
@@ -227,10 +268,11 @@ open class MainWindow : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    val frame = AboutWindow()
+                    val frame = JFrame()
+                    frame.minimumSize = Dimension(1200, 450)
+                    frame.add(Text_Animation())
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
-
                 }
             }
         })
@@ -238,32 +280,55 @@ open class MainWindow : JFrame() {
 
     }
 
-
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
 
-        val mClr = JColorChooser()
+        val fClr = JColorChooser()
         val sClr = JColorChooser()
 
-        var firstColor : Color
-        var secondColor : Color
+        fClr.addPropertyChangeListener {
+            firstColor = fClr.selectionModel.selectedColor
+            repaint()
+        }
 
-        firstColor = mClr.selectionModel.selectedColor
-        secondColor = sClr.selectionModel.selectedColor
+        sClr.addPropertyChangeListener {
+            secondColor = sClr.selectionModel.selectedColor
+            repaint()
+        }
 
-        colorMenu.add(mClr)
+        colorMenu.add(fClr)
         colorMenu.add(sClr)
 
-
         return colorMenu
+    }
 
+    private fun createOpenButton(): JButton {
+        val openButton = JButton("Открыть")
+        var fileChooser = JFileChooser()
+        openButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                fileChooser.dialogTitle = "Выбор директории"
+                fileChooser.showOpenDialog(this@MainWindow)
+            }
+        })
+        return openButton
+    }
+
+    private fun createSaveButton(): JButton {
+        val saveButton = JButton("Сохранить")
+        return saveButton
+    }
+
+    private fun createDynamicalItsButton(): JButton {
+        val dynIt = JButton("Динамическая итерация")
+        return dynIt
     }
 
     private fun createCtrlZButton(): JButton {
         val ctrlzButton = JButton("Отменить предыдущее действие")
 
         return ctrlzButton
-
     }
 
     override fun setVisible(b: Boolean) {
