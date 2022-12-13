@@ -17,6 +17,7 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.media.bean.playerbean.MediaPlayer
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
@@ -53,9 +54,6 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
-
-    var firstColor: Color = Color.BLACK
-    var secondColor: Color = Color.WHITE
 
     init {
         val menuBar = JMenuBar().apply {
@@ -212,6 +210,25 @@ open class MainWindow : JFrame() {
         }
     }
 
+    internal class Video : JFrame() {
+        var player //наш плеер
+                : MediaPlayer
+        init {
+            defaultCloseOperation = EXIT_ON_CLOSE
+            size = Dimension(640, 480) //устанавливаем размер окна
+            player = MediaPlayer()
+            val path = "video.mp4"
+            //path - путь к файлу
+            player.mediaLocation = "file:///$path"
+            player.playbackLoop = false //Повтор видео
+            player.prefetch() //предварительная обработка плеера (без неё плеер не появится)
+            //добавляем на фрейм
+            add(player)
+            //player.start (); - сразу запустить плеер
+            isVisible = true
+        }
+    }
+    
     class Text_Animation : JPanel() {
         var k = 0
         var l = 100
@@ -235,20 +252,6 @@ open class MainWindow : JFrame() {
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
             g2d.drawString("Над проектом работали", width / 4, 50)
-
-            try {
-                Thread.sleep(200)
-                k += 20
-                if (k > width) {
-                    k = 0
-                }
-                repaint()
-
-            } catch (ex: InterruptedException) {
-                JOptionPane.showMessageDialog(this, ex)
-            }
-        }
-    }
 
     private fun createFileMenu() : JMenu {
         val openItem = JMenuItem("Открыть")
@@ -340,7 +343,7 @@ open class MainWindow : JFrame() {
                 e?.let {
                     val frame = JFrame()
                     frame.minimumSize = Dimension(1200, 450)
-                    frame.add(Text_Animation())
+                    frame.add(Video())
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
 
@@ -355,21 +358,24 @@ open class MainWindow : JFrame() {
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
 
-        val fClr = JColorChooser()
-        val sClr = JColorChooser()
+        val colorSchema1 = JButton()
+        colorSchema1.text = "Цветовая схема #1"
+        val colorSchema2 = JButton()
+        colorSchema2.text = "Цветовая схема #2"
+        val colorSchema3 = JButton()
+        colorSchema3.text = "Цветовая схема #3"
+        val colorSchema4 = JButton()
+        colorSchema4.text = "Цветовая схема #4"
+        val colorSchema5 = JButton()
+        colorSchema5.text = "Цветовая схема #5"
 
-        fClr.addPropertyChangeListener {
-            firstColor = fClr.selectionModel.selectedColor
-            repaint()
-        }
+        colorMenu.add(colorSchema1)
+        colorMenu.add(colorSchema2)
+        colorMenu.add(colorSchema3)
+        colorMenu.add(colorSchema4)
+        colorMenu.add(colorSchema5)
 
-        sClr.addPropertyChangeListener {
-            secondColor = sClr.selectionModel.selectedColor
-            repaint()
-        }
 
-        colorMenu.add(fClr)
-        colorMenu.add(sClr)
 
         return colorMenu
     }
@@ -392,8 +398,8 @@ open class MainWindow : JFrame() {
         return saveButton
     }
 
-    private fun createDynamicalItsButton(): JButton {
-        val dynIt = JButton("Динамическая итерация")
+    private fun createDynamicalItsButton(): JCheckBox {
+        val dynIt = JCheckBox("Динамическая итерация")
         return dynIt
     }
 
