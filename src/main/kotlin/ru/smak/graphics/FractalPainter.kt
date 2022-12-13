@@ -11,7 +11,7 @@ import kotlin.concurrent.thread
 class FractalPainter(
     var fractal: (Complex)->Float,
     var colorFunc: (Float)->Color,
-    val plane: Plane,
+    var plane: Plane,
 ) :
     Painter
 {

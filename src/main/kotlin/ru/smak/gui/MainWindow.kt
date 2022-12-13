@@ -4,7 +4,9 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
-import java.awt.Button
+import ru.smak.tools.FractalData
+import ru.smak.tools.FractalDataFileLoader
+import ru.smak.tools.FractalDataFileSaver
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Point
@@ -17,6 +19,8 @@ import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
+    private val plane: Plane
+    private val fp: FractalPainter
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(600, 450)
     val mainPanel: GraphicsPanel
@@ -26,6 +30,7 @@ open class MainWindow : JFrame() {
 
     init {
         val menuBar = JMenuBar().apply {
+            add(createFileMenu())
             add(createColorMenu())
             add(createCtrlZButton())
             add(createAboutButton())
@@ -37,9 +42,9 @@ open class MainWindow : JFrame() {
         minimumSize = minSz
 
         val colorScheme = ColorFuncs[Random.nextInt(ColorFuncs.size)]
-        val plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        plane = Plane(-2.0, 1.0, -1.0, 1.0)
         trgsz.getTargetFromPlane(plane)
-        val fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
+        fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
         //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
@@ -160,6 +165,35 @@ open class MainWindow : JFrame() {
                     .addGap(8)
             )
         }
+    }
+
+    private fun createFileMenu() : JMenu {
+        val openItem = JMenuItem("Открыть")
+        openItem.addActionListener {
+            val fractalData = FractalDataFileLoader.loadData()
+            if (fractalData != null) {
+                fp.plane = Plane(
+                    fractalData.xMin,
+                    fractalData.xMax,
+                    fractalData.yMin,
+                    fractalData.yMax
+                )
+                fp.paint(this.graphics)
+            }
+        }
+        
+        val selfFormatMenuItem = JMenuItem("Сохранить")
+        selfFormatMenuItem.addActionListener {
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax /*, bgClr.selection.actionCommand*/ )
+            val fractalSaver = FractalDataFileSaver(fractalData)
+        }
+
+        val fileMenu = JMenu("Файл")
+        fileMenu.add(openItem)
+        fileMenu.addSeparator()
+        fileMenu.add(selfFormatMenuItem)
+        
+        return fileMenu
     }
 
     class AboutWindow : JFrame() {
