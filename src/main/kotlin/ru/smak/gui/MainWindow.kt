@@ -21,7 +21,7 @@ import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
-    private val plane: Plane
+    private var plane: Plane
     private val fp: FractalPainter
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(1000, 450)
@@ -221,13 +221,12 @@ open class MainWindow : JFrame() {
         openItem.addActionListener {
             val fractalData = FractalDataFileLoader.loadData()
             if (fractalData != null) {
-                fp.plane = Plane(
-                    fractalData.xMin,
-                    fractalData.xMax,
-                    fractalData.yMin,
-                    fractalData.yMax
-                )
-                fp.paint(this.graphics)
+                plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
+                plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
+//                trgsz.getTargetFromPlane(plane)
+                fp.plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
+                fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
+                this.repaint()
             }
         }
         
