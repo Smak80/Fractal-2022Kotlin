@@ -99,6 +99,11 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            val sq: Int = plane.height * plane.width
+                            val new_sq = (x2-x1) * (y1-y2)
+                            var d: Int = 100
+                            if (sq/new_sq<100) d = (sq/new_sq).toInt()
+                            Mandelbrot.maxIterations += d
                             makeOneToOne(plane,x1,x2,y1,y2,mainPanel.size,trgsz)//Делает панель мастштабом 1 к 1 и меняет trgsz
                             mainPanel.repaint()
                         }
