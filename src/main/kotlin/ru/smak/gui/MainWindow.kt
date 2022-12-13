@@ -4,33 +4,66 @@ import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
+
+import ru.smak.tools.FractalData
+import ru.smak.tools.FractalDataFileLoader
+import ru.smak.tools.FractalDataFileSaver
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Point
+import ru.smak.video.ui.windows.VideoWindow
 import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.media.bean.playerbean.MediaPlayer
+import java.awt.image.BufferedImage
+import java.io.File
 import javax.swing.*
 import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
+    private var colorFuncIndex: Int
+    private var plane: Plane
+    private val fp: FractalPainter
+    private class Rollback(private val plane: Plane,
+                           private val targetSz: TargetSz,
+                           private val dimension: Dimension) {
+        private val xMin = targetSz.targetXMin
+        private val xMax = targetSz.targetXMax
+        private val yMin = targetSz.targetYMin
+        private val yMax = targetSz.targetYMax
+        fun rollback() {
+            makeOneToOne(plane, xMin, xMax, yMin, yMax, dimension, targetSz)
+        }
+    }
+    private val operations = mutableListOf<Rollback>()
     private var rect: Rectangle = Rectangle()
-    val minSz = Dimension(1000, 450)
+    val minSz = Dimension(1000, 600)
     val mainPanel: GraphicsPanel
+
+    private val _videoWindow = VideoWindow(this).apply { isVisible = false; };
+
+
+
+
+
+
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
 
     init {
         val menuBar = JMenuBar().apply {
+            add(createFileMenu())
             add(createOpenButton())
             add(createSaveButton())
             add(createColorMenu())
             add(createDynamicalItsButton())
             add(createCtrlZButton())
             add(createAboutButton())
-
         }
 
         jMenuBar = menuBar
@@ -38,10 +71,12 @@ open class MainWindow : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         minimumSize = minSz
 
-        val colorScheme = ColorFuncs[Random.nextInt(ColorFuncs.size)]
-        val plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        colorFuncIndex = Random.nextInt(ColorFuncs.size)
+        val colorScheme = ColorFuncs[colorFuncIndex]
+        plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        
         trgsz.getTargetFromPlane(plane)
-        val fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
+        fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
         //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
@@ -50,18 +85,20 @@ open class MainWindow : JFrame() {
 
         }
 
-
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width = mainPanel.width
-                plane.height = mainPanel.height
-                makeOneToOne(plane, trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+                plane.width=mainPanel.width
+                plane.height=mainPanel.height
+                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
 
-        mainPanel.addMouseListener(object : MouseAdapter() {
+    menuBar.add(createRecordBtn(plane)); // создаем окошко для создания видео
 
+
+    mainPanel.addMouseListener(
+    object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent?) {
                 super.mouseClicked(e)
                 e?.let {
@@ -82,8 +119,10 @@ open class MainWindow : JFrame() {
                 e?.let {
                     if (it.button == MouseEvent.BUTTON1)
                         rect.addPoint(it.point)
-                    else if (it.button == MouseEvent.BUTTON3)
+                    else if (it.button == MouseEvent.BUTTON3) {
                         startPoint = it.point
+                    }
+                    operations.add(Rollback(plane, trgsz, mainPanel.size))
                     numButtonPressed = it.button
                 }
             }
@@ -110,7 +149,7 @@ open class MainWindow : JFrame() {
                                 y2,
                                 mainPanel.size,
                                 trgsz
-                            )//Делает панель мастштабом 1 к 1 и меняет trgsz
+                            )//Делает панель мастштабом 1 к 1 и меняет trgs
                             mainPanel.repaint()
                         }
                     }
@@ -174,7 +213,6 @@ open class MainWindow : JFrame() {
     internal class Video : JFrame() {
         var player //наш плеер
                 : MediaPlayer
-
         init {
             defaultCloseOperation = EXIT_ON_CLOSE
             size = Dimension(640, 480) //устанавливаем размер окна
@@ -189,6 +227,59 @@ open class MainWindow : JFrame() {
             //player.start (); - сразу запустить плеер
             isVisible = true
         }
+    }
+    
+    class Text_Animation : JPanel() {
+        var k = 0
+        var l = 100
+
+        override fun paint(gp: Graphics) {
+            super.paint(gp)
+            val g2d = gp as Graphics2D
+
+            val file = File("Font.ttf")
+            val font = Font.createFont(Font.TRUETYPE_FONT, file)
+            val sFont = font.deriveFont(25f)
+            g2d.color = Color.RED
+            g2d.font = sFont
+
+            val pplArray = listOf<String>(
+                "Потасьев Никита", "Щербанев Дмитрий",
+                "Балакин Александр", "Иванов Владислав",
+                "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
+                "Цымбал Данила"
+            )
+
+            pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
+            g2d.drawString("Над проектом работали", width / 4, 50)
+
+    private fun createFileMenu() : JMenu {
+        val openItem = JMenuItem("Открыть")
+        openItem.addActionListener {
+            val fractalData = FractalDataFileLoader.loadData()
+            if (fractalData != null) {
+                plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
+                plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
+//                trgsz.getTargetFromPlane(plane)
+                fp.plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
+                fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
+                fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
+                this.repaint()
+            }
+        }
+        
+        val selfFormatMenuItem = JMenuItem("Сохранить")
+        selfFormatMenuItem.addActionListener {
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
+            val fractalSaver = FractalDataFileSaver(fractalData)
+        }
+
+        val fileMenu = JMenu("Файл")
+        fileMenu.add(openItem)
+        fileMenu.addSeparator()
+        fileMenu.add(selfFormatMenuItem)
+        
+        return fileMenu
     }
 
     class AboutWindow : JFrame() {
@@ -208,7 +299,8 @@ open class MainWindow : JFrame() {
                     "Иванов Владислав \n" +
                     "Хусаинов Данил \n" +
                     "Даянов Рамиль \n" +
-                    "Королева Ульяна"
+                    "Королева Ульяна \n" +
+                    "Цымбал Данила"
 
 
             minimumSize = minSz
@@ -254,12 +346,14 @@ open class MainWindow : JFrame() {
                     frame.add(Video())
                     frame.isVisible = true
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
+
                 }
             }
         })
         return aboutButton
 
     }
+
 
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
@@ -311,9 +405,39 @@ open class MainWindow : JFrame() {
 
     private fun createCtrlZButton(): JButton {
         val ctrlzButton = JButton("Отменить предыдущее действие")
+        ctrlzButton.addMouseListener(
+            object : MouseAdapter(){
+                override fun mouseClicked(e: MouseEvent?) {
+                    super.mouseClicked(e)
+                    if (operations.size > 0) {
+                        operations.last().rollback()
+                        operations.removeAt(operations.lastIndex)
+                        mainPanel.repaint()
+                    }
+                }
+            }
+        )
 
         return ctrlzButton
+
     }
+
+private fun createRecordBtn(plane: Plane): JButton {
+    val btn = JButton("Record");
+
+    btn.addMouseListener(object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent?) {
+            super.mousePressed(e)
+            e?.let {
+                _videoWindow.apply {
+                    this.plane = plane;
+                    isVisible = true
+                }
+            }
+        }
+    })
+    return btn;
+}
 
     override fun setVisible(b: Boolean) {
         super.setVisible(b)
@@ -327,5 +451,22 @@ open class MainWindow : JFrame() {
     companion object {
         const val GROW = GroupLayout.DEFAULT_SIZE
         const val SHRINK = GroupLayout.PREFERRED_SIZE
+
+        var colorScheme: (Float) -> Color = ::testFunc;
     }
+
+// TODO: for testing video creation
+fun getScreenShot(width: Int, height: Int): BufferedImage {
+
+    val image = BufferedImage(
+        width,
+        height,
+        BufferedImage.TYPE_INT_RGB
+    )
+    mainPanel.paint(image.graphics)
+    return image
+}
+
+
+
 }
