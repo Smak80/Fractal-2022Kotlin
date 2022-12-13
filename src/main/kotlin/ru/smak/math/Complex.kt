@@ -53,6 +53,8 @@ class Complex(
         im = oRe * other.im + im * other.re
     }
 
+    operator fun times(lambda: Double) = Complex(lambda * re, lambda * im)
+
     operator fun div(other: Complex): Complex {
         val den: Double = other.sqAbs
         return Complex(
