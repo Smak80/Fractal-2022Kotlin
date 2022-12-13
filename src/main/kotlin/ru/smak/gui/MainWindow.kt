@@ -1,9 +1,15 @@
 package ru.smak.gui
 
-import ru.smak.graphics.*
+import ru.smak.graphics.ColorFuncs
+import ru.smak.graphics.Converter
+import ru.smak.graphics.FractalPainter
+import ru.smak.graphics.Plane
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
+import java.awt.Color
+import java.awt.Dimension
+import java.awt.Point
 
 import ru.smak.tools.FractalData
 import ru.smak.tools.FractalDataFileLoader
@@ -21,6 +27,7 @@ import javax.media.bean.playerbean.MediaPlayer
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
+import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.random.Random
 
 
@@ -74,7 +81,7 @@ open class MainWindow : JFrame() {
         colorFuncIndex = Random.nextInt(ColorFuncs.size)
         val colorScheme = ColorFuncs[colorFuncIndex]
         plane = Plane(-2.0, 1.0, -1.0, 1.0)
-        
+
         trgsz.getTargetFromPlane(plane)
         fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
         //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
@@ -228,7 +235,7 @@ open class MainWindow : JFrame() {
             isVisible = true
         }
     }
-    
+
     class Text_Animation : JPanel() {
         var k = 0
         var l = 100
@@ -269,7 +276,7 @@ open class MainWindow : JFrame() {
                 this.repaint()
             }
         }
-        
+
         val selfFormatMenuItem = JMenuItem("Сохранить")
         selfFormatMenuItem.addActionListener {
             val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
@@ -280,7 +287,7 @@ open class MainWindow : JFrame() {
         fileMenu.add(openItem)
         fileMenu.addSeparator()
         fileMenu.add(selfFormatMenuItem)
-        
+
         return fileMenu
     }
 
@@ -384,7 +391,11 @@ open class MainWindow : JFrame() {
 
     private fun createOpenButton(): JButton {
         val openButton = JButton("Открыть")
-        var fileChooser = JFileChooser()
+        val fileChooser = JFileChooser()
+        val filter = FileNameExtensionFilter(
+            "image", "JPG", ".PNG"
+        )
+        fileChooser.fileFilter = filter
         openButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
@@ -397,6 +408,19 @@ open class MainWindow : JFrame() {
 
     private fun createSaveButton(): JButton {
         val saveButton = JButton("Сохранить")
+        val fileChooser = JFileChooser()
+        saveButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                fileChooser.dialogTitle = "Сохранение файла"
+                val result = fileChooser.showSaveDialog(this@MainWindow)
+                if (result == JFileChooser.APPROVE_OPTION) JOptionPane.showMessageDialog(
+                    this@MainWindow,
+                    "Файл '" + fileChooser.selectedFile +
+                            "  сохранен, наверное"
+                )
+            }
+        })
         return saveButton
     }
 
