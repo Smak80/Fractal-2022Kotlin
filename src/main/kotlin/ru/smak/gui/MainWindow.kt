@@ -252,6 +252,8 @@ open class MainWindow : JFrame() {
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
             g2d.drawString("Над проектом работали", width / 4, 50)
+        }
+    }
 
     private fun createFileMenu() : JMenu {
         val openItem = JMenuItem("Открыть")
