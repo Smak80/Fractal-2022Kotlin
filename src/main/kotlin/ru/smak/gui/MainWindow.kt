@@ -7,10 +7,6 @@ import ru.smak.graphics.Plane
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Point
-
 import ru.smak.tools.FractalData
 import ru.smak.tools.FractalDataFileLoader
 import ru.smak.tools.FractalDataFileSaver
