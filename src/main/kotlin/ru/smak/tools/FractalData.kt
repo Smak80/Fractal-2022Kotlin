@@ -7,5 +7,5 @@ data class FractalData(
     var xMax: Double,
     var yMin: Double,
     var yMax: Double,
-//    var color: String
+    var colorFuncIndex: Int
 ) : Serializable

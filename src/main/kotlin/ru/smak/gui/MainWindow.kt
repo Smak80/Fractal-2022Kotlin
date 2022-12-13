@@ -21,6 +21,7 @@ import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
+    private var colorFuncIndex: Int
     private var plane: Plane
     private val fp: FractalPainter
     private var rect: Rectangle = Rectangle()
@@ -49,7 +50,8 @@ open class MainWindow : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         minimumSize = minSz
 
-        val colorScheme = ColorFuncs[Random.nextInt(ColorFuncs.size)]
+        colorFuncIndex = Random.nextInt(ColorFuncs.size)
+        val colorScheme = ColorFuncs[colorFuncIndex]
         plane = Plane(-2.0, 1.0, -1.0, 1.0)
         trgsz.getTargetFromPlane(plane)
         fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
@@ -226,13 +228,14 @@ open class MainWindow : JFrame() {
 //                trgsz.getTargetFromPlane(plane)
                 fp.plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
                 fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
+                fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
                 this.repaint()
             }
         }
         
         val selfFormatMenuItem = JMenuItem("Сохранить")
         selfFormatMenuItem.addActionListener {
-            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax /*, bgClr.selection.actionCommand*/ )
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
 
