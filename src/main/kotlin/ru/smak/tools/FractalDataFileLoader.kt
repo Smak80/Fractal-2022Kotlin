@@ -15,7 +15,7 @@ object FractalDataFileLoader {
             fileFilter = FileNameExtensionFilter("dat", "dat")
         }
         fileChooser.fileSelectionMode = JFileChooser.OPEN_DIALOG
-        val openDialogResult = fileChooser.showSaveDialog(fileChooser)
+        val openDialogResult = fileChooser.showOpenDialog(fileChooser)
         if (openDialogResult == JFileChooser.APPROVE_OPTION) {
             val fileAbsolutePath = fileChooser.selectedFile.absolutePath
             if (fileChooser.selectedFile.extension.isEmpty()) {
