@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
 import javax.swing.filechooser.FileNameExtensionFilter
+import kotlin.math.abs
 import kotlin.random.Random
 
 
@@ -140,6 +141,11 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            val sq: Int = plane.height * plane.width
+                            val new_sq = abs(x2-x1) * abs(y2-y1)
+                            var d: Int = 100
+                            if(sq/new_sq<100) d = (sq/new_sq).toInt()
+                            Mandelbrot.maxIterations += d
                             makeOneToOne(
                                 plane,
                                 x1,
@@ -225,8 +231,9 @@ open class MainWindow : JFrame() {
 
             val pplArray = listOf<String>(
                 "Потасьев Никита", "Щербанев Дмитрий",
-                "Балакин Александр", "Иванов Владислав", "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
-                "Шилин Юрий", "Трепачко Данила", "Нигматов Аяз", "Домашев Данил", "Цымбал Данила"
+                "Балакин Александр", "Иванов Владислав",
+                "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
+                "Цымбал Данила", "Нигматов Аяз"
 
             )
 
