@@ -320,8 +320,8 @@ open class MainWindow : JFrame() {
         return saveButton
     }
 
-    private fun createDynamicalItsButton(): JButton {
-        val dynIt = JButton("Динамическая итерация")
+    private fun createDynamicalItsButton(): JCheckBox {
+        val dynIt = JCheckBox("Динамическая итерация")
         return dynIt
     }
 
