@@ -55,8 +55,6 @@ open class MainWindow : JFrame() {
     init {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
-            add(createOpenButton())
-            add(createSaveButton())
             add(createColorMenu())
             add(createDynamicalItsButton())
             add(createCtrlZButton())
@@ -264,17 +262,37 @@ open class MainWindow : JFrame() {
                 this.repaint()
             }
         }
-
-        val selfFormatMenuItem = JMenuItem("Сохранить")
+        
+        val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
             val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
+        
+        val saveImageMenuItem = JMenuItem("Изображение")
+        val fileChooser = JFileChooser()
+        saveImageMenuItem.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                fileChooser.dialogTitle = "Сохранение файла"
+                val result = fileChooser.showSaveDialog(this@MainWindow)
+                if (result == JFileChooser.APPROVE_OPTION) JOptionPane.showMessageDialog(
+                    this@MainWindow,
+                    "Файл '" + fileChooser.selectedFile +
+                            "  сохранен, наверное"
+                )
+            }
+        })
+        
+        val saveMenu = JMenu("Сохранить как")
+        saveMenu.add(selfFormatMenuItem)
+        saveMenu.addSeparator()
+        saveMenu.add(saveImageMenuItem)
 
         val fileMenu = JMenu("Файл")
         fileMenu.add(openItem)
         fileMenu.addSeparator()
-        fileMenu.add(selfFormatMenuItem)
+        fileMenu.add(saveMenu)
 
         return fileMenu
     }
