@@ -18,7 +18,7 @@ import javax.swing.*
 
 class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
     private var rect: Rectangle = Rectangle()
-    val minSz = Dimension(600, 450)
+    val minSz = Dimension(1000, 600)
     val secondPanel: GraphicsPanel
     val trgsz = TargetSz()
     private var startPoint: Point? = null

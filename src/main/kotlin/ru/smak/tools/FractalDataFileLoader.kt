@@ -11,16 +11,16 @@ object FractalDataFileLoader {
     fun loadData() : FractalData? {
         val fileChooser = JFileChooser()
         with(fileChooser) {
-            dialogTitle = "Открытие файла данных фрактала"
-            fileFilter = FileNameExtensionFilter("dat", "dat")
+            dialogTitle = "Открытие фрактала"
+            fileFilter = FileNameExtensionFilter(
+                "Состояние фрактала с возможностью восттановления",
+                "fractal")
+            isAcceptAllFileFilterUsed = false
+            fileSelectionMode = JFileChooser.OPEN_DIALOG
         }
-        fileChooser.fileSelectionMode = JFileChooser.OPEN_DIALOG
         val openDialogResult = fileChooser.showOpenDialog(fileChooser)
         if (openDialogResult == JFileChooser.APPROVE_OPTION) {
             val fileAbsolutePath = fileChooser.selectedFile.absolutePath
-            if (fileChooser.selectedFile.extension.isEmpty()) {
-
-            }
             val loadResult = load(fileAbsolutePath)
             if (loadResult != null) {
                 return loadResult

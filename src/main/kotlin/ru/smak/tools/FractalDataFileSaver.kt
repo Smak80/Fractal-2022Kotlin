@@ -10,20 +10,19 @@ class FractalDataFileSaver(data: FractalData) {
     init {
         val fileChooser = JFileChooser()
         with(fileChooser) {
-            dialogTitle = "Сохранение данных фрактала в файл"
-            fileFilter = FileNameExtensionFilter("dat", "dat")
+            dialogTitle = "Сохранение состояния фрактала"
+            fileFilter = FileNameExtensionFilter(
+                "Состояние фрактала с возможностью восттановления", 
+                "fractal")
+            isAcceptAllFileFilterUsed = false
+            fileSelectionMode = JFileChooser.OPEN_DIALOG
         }
-        fileChooser.fileSelectionMode = JFileChooser.OPEN_DIALOG
         val openDialogResult = fileChooser.showSaveDialog(fileChooser)
         if (openDialogResult == JFileChooser.APPROVE_OPTION) {
-            var fileAbsolutePath = fileChooser.selectedFile.absolutePath
-            if (fileChooser.selectedFile.extension.isEmpty()) {
-                if (fileChooser.fileFilter.description != "All Files") {
-                    fileAbsolutePath += "." + fileChooser.fileFilter.description
-                } else {
-                    fileAbsolutePath += ".dat"
-                }
-            }
+            val fileAbsolutePath = fileChooser.currentDirectory.absolutePath + 
+                    "\\" + 
+                    fileChooser.selectedFile.nameWithoutExtension + 
+                    ".fractal"
             save(fileAbsolutePath, data)
             JOptionPane.showMessageDialog(fileChooser, "Файл '$fileAbsolutePath' успешно сохранен")
         }
