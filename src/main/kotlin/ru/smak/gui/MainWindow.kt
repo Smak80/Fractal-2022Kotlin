@@ -1,16 +1,19 @@
 package ru.smak.gui
 
-import ru.smak.graphics.*
-import ru.smak.math.*
+import ru.smak.graphics.ColorFuncs
+import ru.smak.graphics.Converter
+import ru.smak.graphics.FractalPainter
+import ru.smak.graphics.Plane
+import ru.smak.math.Complex
+import ru.smak.math.FractalFuncs
+import ru.smak.math.Julia
+import ru.smak.math.Mandelbrot
 import ru.smak.tools.FractalData
 import ru.smak.tools.FractalDataFileLoader
 import ru.smak.tools.FractalDataFileSaver
 import ru.smak.video.ui.windows.VideoWindow
 import java.awt.*
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import java.awt.event.*
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
@@ -298,19 +301,21 @@ open class MainWindow : JFrame() {
         return fileMenu
     }
 
-    private fun createAboutButton(): JButton {
-        val aboutButton = JButton("О программе")
-        aboutButton.addMouseListener(object : MouseAdapter() {
+    private fun createAboutButton(): JMenu {
+        val aboutMenu = JMenu("О программе")
+        val frame = JFrame()
+        frame.add(AboutPanel())
+        frame.minimumSize = Dimension(800, 500)
+        frame.pack()
+        frame.defaultCloseOperation = DISPOSE_ON_CLOSE
+        aboutMenu.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    val frame = JFrame()
+                    if (frame.isShowing){
+                        frame.dispose()
+                    }
                     frame.isVisible = true
-                    frame.add(AboutPanel())
-                    frame.minimumSize = Dimension(800, 500)
-                    frame.pack()
-                    frame.defaultCloseOperation = DISPOSE_ON_CLOSE
-
                 }
             }
         })
@@ -403,9 +408,25 @@ open class MainWindow : JFrame() {
         return dynIt
     }
 
-    private fun createCtrlZButton(): JButton {
-        val ctrlzButton = JButton("Отменить предыдущее действие")
-        ctrlzButton.addMouseListener(
+    private fun createCtrlZButton(): JMenu {
+        val ctrlZMenu = JMenu("Отменить предыдущее действие")
+
+        val pressed: Action = object : AbstractAction() {
+            override fun actionPerformed(e: ActionEvent) {
+                if (operations.size > 0) {
+                    operations.last().rollback()
+                    operations.removeAt(operations.lastIndex)
+                    mainPanel.repaint()
+                }
+            }
+        }
+
+        ctrlZMenu.inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().menuShortcutKeyMask),
+            "pressed")
+        ctrlZMenu.actionMap.put("pressed",
+            pressed)
+
+        ctrlZMenu.addMouseListener(
             object : MouseAdapter() {
                 override fun mouseClicked(e: MouseEvent?) {
                     super.mouseClicked(e)
