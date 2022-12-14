@@ -184,7 +184,7 @@ open class MainWindow : JFrame() {
                         startPoint?.let {
                             val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
                             val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
-                            trgsz.shiftImage(shiftX, shiftY, plane)
+                            trgsz.shiftImageOnPanel(shiftX, shiftY, plane)
                             makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
