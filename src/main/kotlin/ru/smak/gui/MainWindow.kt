@@ -333,7 +333,7 @@ open class MainWindow : JFrame() {
                 }
             }
         })
-        return aboutButton
+        return aboutMenu
 
     }
 
@@ -483,7 +483,7 @@ open class MainWindow : JFrame() {
             }
         )
 
-        return ctrlzButton
+        return ctrlZMenu
 
     }
 
