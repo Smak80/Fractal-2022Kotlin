@@ -1,9 +1,6 @@
 package ru.smak.gui
 
-import ru.smak.graphics.ColorFuncs
-import ru.smak.graphics.Converter
-import ru.smak.graphics.FractalPainter
-import ru.smak.graphics.Plane
+import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
@@ -233,8 +230,7 @@ open class MainWindow : JFrame() {
                 "Потасьев Никита", "Щербанев Дмитрий",
                 "Балакин Александр", "Иванов Владислав",
                 "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
-                "Цымбал Данила", "Нигматов Аяз"
-
+                "Цымбал Данила", "Нигматов Аяз", "Домашев Данил"
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
@@ -275,9 +271,6 @@ open class MainWindow : JFrame() {
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
 
-    }
-
-    init {
         val fileMenu = JMenu("Файл")
         fileMenu.add(openItem)
         fileMenu.addSeparator()
