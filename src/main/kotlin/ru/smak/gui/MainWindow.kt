@@ -51,12 +51,13 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
+    var checkbox= createDynamicalItsButton()
 
     init {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
             add(createColorMenu())
-            add(createDynamicalItsButton())
+            add(checkbox)
             add(createCtrlZButton())
             add(createAboutButton())
         }
@@ -136,11 +137,12 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            if (checkbox.isSelected){
                             val sq: Int = plane.height * plane.width
                             val new_sq = abs(x2-x1) * abs(y2-y1)
                             var d: Int = 100
                             if(sq/new_sq<100) d = (sq/new_sq).toInt()
-                            Mandelbrot.maxIterations += d
+                            Mandelbrot.maxIterations += d}
                             makeOneToOne(
                                 plane,
                                 x1,
@@ -371,6 +373,7 @@ open class MainWindow : JFrame() {
 
     private fun createDynamicalItsButton(): JCheckBox {
         val dynIt = JCheckBox("Динамическая итерация")
+        dynIt.isSelected=true
         return dynIt
     }
 
