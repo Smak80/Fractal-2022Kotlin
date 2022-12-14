@@ -26,17 +26,17 @@ open class MainWindow : JFrame() {
     private var fp: FractalPainter
     var image = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
 
-    private class Rollback(
-        private val plane: Plane,
+        private inner class Rollback(
         private val targetSz: TargetSz,
-        private val dimension: Dimension
     ) {
         private val xMin = targetSz.targetXMin
         private val xMax = targetSz.targetXMax
         private val yMin = targetSz.targetYMin
         private val yMax = targetSz.targetYMax
+            private val maxIterations = Mandelbrot.maxIterations
         fun rollback() {
-            makeOneToOne(plane, xMin, xMax, yMin, yMax, dimension, targetSz)
+            makeOneToOne(plane, xMin, xMax, yMin, yMax, mainPanel.size, targetSz)
+            Mandelbrot.maxIterations = maxIterations
         }
     }
 
@@ -107,6 +107,13 @@ open class MainWindow : JFrame() {
                 }
             })
 
+        mainPanel.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent?) {
+                super.keyPressed(e)
+                println("HELLO")
+            }
+        })
+
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
@@ -116,7 +123,7 @@ open class MainWindow : JFrame() {
                     else if (it.button == MouseEvent.BUTTON3) {
                         startPoint = it.point
                     }
-                    operations.add(Rollback(plane, trgsz, mainPanel.size))
+                    operations.add(Rollback(trgsz))
                     numButtonPressed = it.button
                 }
             }
@@ -264,14 +271,17 @@ open class MainWindow : JFrame() {
                 colorScheme = ColorFuncs[fractalData.colorFuncIndex]
                 checkbox.isSelected = fractalData.isDynamical
                 trgsz.getTargetFromPlane(plane)
+                Mandelbrot.maxIterations = fractalData.maxIterations
+//                plane.width=mainPanel.width
+//                plane.height=mainPanel.height
+//                makeOneToOne(plane,trgsz, mainPanel.size)
                 this.repaint()
             }
         }
 
         val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
-            val fractalData =
-                FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected)
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected, Mandelbrot.maxIterations)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
 
