@@ -39,6 +39,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
                     super.componentResized(e)
                     plane.width = width
                     plane.height = height
+                    makeOneToOne(plane,trgsz, size)
                 }
             })
         }
