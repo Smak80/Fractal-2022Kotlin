@@ -1,9 +1,6 @@
 package ru.smak.gui
 
-import ru.smak.graphics.ColorFuncs
-import ru.smak.graphics.Converter
-import ru.smak.graphics.FractalPainter
-import ru.smak.graphics.Plane
+import ru.smak.graphics.*
 import ru.smak.math.Complex
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
@@ -58,8 +55,6 @@ open class MainWindow : JFrame() {
     init {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
-            add(createOpenButton())
-            add(createSaveButton())
             add(createColorMenu())
             add(createDynamicalItsButton())
             add(createCtrlZButton())
@@ -233,8 +228,8 @@ open class MainWindow : JFrame() {
                 "Потасьев Никита", "Щербанев Дмитрий",
                 "Балакин Александр", "Иванов Владислав",
                 "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
-                "Цымбал Данила", "Нигматов Аяз"
-
+                "Цымбал Данила", "Нигматов Аяз", "Домашев Данил",
+                "Шилин Юрий Эдуардович"
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
@@ -261,27 +256,44 @@ open class MainWindow : JFrame() {
             if (fractalData != null) {
                 plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
                 plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
-//                trgsz.getTargetFromPlane(plane)
                 fp.plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
                 fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
                 fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
+                colorScheme = ColorFuncs[fractalData.colorFuncIndex]
                 this.repaint()
             }
         }
-
-        val selfFormatMenuItem = JMenuItem("Сохранить")
+        
+        val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
             val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
+        
+        val saveImageMenuItem = JMenuItem("Изображение")
+        val fileChooser = JFileChooser()
+        saveImageMenuItem.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                fileChooser.dialogTitle = "Сохранение файла"
+                val result = fileChooser.showSaveDialog(this@MainWindow)
+                if (result == JFileChooser.APPROVE_OPTION) JOptionPane.showMessageDialog(
+                    this@MainWindow,
+                    "Файл '" + fileChooser.selectedFile +
+                            "  сохранен, наверное"
+                )
+            }
+        })
+        
+        val saveMenu = JMenu("Сохранить как")
+        saveMenu.add(selfFormatMenuItem)
+        saveMenu.addSeparator()
+        saveMenu.add(saveImageMenuItem)
 
-    }
-
-    init {
         val fileMenu = JMenu("Файл")
         fileMenu.add(openItem)
         fileMenu.addSeparator()
-        fileMenu.add(selfFormatMenuItem)
+        fileMenu.add(saveMenu)
 
         return fileMenu
     }
