@@ -257,10 +257,10 @@ open class MainWindow : JFrame() {
             if (fractalData != null) {
                 plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
                 plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
-//                trgsz.getTargetFromPlane(plane)
                 fp.plane.xEdges = Pair(fractalData.xMin, fractalData.xMax)
                 fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
                 fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
+                colorScheme = ColorFuncs[fractalData.colorFuncIndex]
                 this.repaint()
             }
         }
