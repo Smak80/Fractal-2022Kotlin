@@ -25,7 +25,7 @@ class FractalPainter(
     @OptIn(DelicateCoroutinesApi::class)
     private val pool = newFixedThreadPoolContext(threadCount, "PainterPool")
     override fun paint(g: Graphics) = runBlocking{
-        val bt = System.currentTimeMillis()
+        //val bt = System.currentTimeMillis()
         repeat (width) { i ->
             launch(pool) {
                 val pic = BufferedImage(1, height, BufferedImage.TYPE_INT_RGB)
@@ -45,8 +45,8 @@ class FractalPainter(
                 g.drawImage(pic, i, 0, null)
             }
         }
-        val et = System.currentTimeMillis()
-        println(et-bt)
+        //val et = System.currentTimeMillis()
+        //println(et-bt)
     }
 
 }
