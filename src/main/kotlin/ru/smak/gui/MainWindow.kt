@@ -302,17 +302,19 @@ open class MainWindow : JFrame() {
 
     private fun createAboutButton(): JMenu {
         val aboutMenu = JMenu("О программе")
+        val frame = JFrame()
+        frame.add(AboutPanel())
+        frame.minimumSize = Dimension(800, 500)
+        frame.pack()
+        frame.defaultCloseOperation = DISPOSE_ON_CLOSE
         aboutMenu.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    val frame = JFrame()
+                    if (frame.isShowing){
+                        frame.dispose()
+                    }
                     frame.isVisible = true
-                    frame.add(AboutPanel())
-                    frame.minimumSize = Dimension(800, 500)
-                    frame.pack()
-                    frame.defaultCloseOperation = DISPOSE_ON_CLOSE
-
                 }
             }
         })
