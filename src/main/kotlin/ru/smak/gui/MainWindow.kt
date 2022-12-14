@@ -7,10 +7,7 @@ import ru.smak.tools.FractalDataFileLoader
 import ru.smak.tools.FractalDataFileSaver
 import ru.smak.video.ui.windows.VideoWindow
 import java.awt.*
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import java.awt.event.*
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
@@ -24,17 +21,17 @@ open class MainWindow : JFrame() {
     private var fp: FractalPainter
     var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
 
-        private class Rollback(
-        private val plane: Plane,
+        private inner class Rollback(
         private val targetSz: TargetSz,
-        private val dimension: Dimension
     ) {
         private val xMin = targetSz.targetXMin
         private val xMax = targetSz.targetXMax
         private val yMin = targetSz.targetYMin
         private val yMax = targetSz.targetYMax
+            private val maxIterations = Mandelbrot.maxIterations
         fun rollback() {
-            makeOneToOne(plane, xMin, xMax, yMin, yMax, dimension, targetSz)
+            makeOneToOne(plane, xMin, xMax, yMin, yMax, mainPanel.size, targetSz)
+            Mandelbrot.maxIterations = maxIterations
         }
     }
 
@@ -105,6 +102,13 @@ open class MainWindow : JFrame() {
                 }
             })
 
+        mainPanel.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent?) {
+                super.keyPressed(e)
+                println("HELLO")
+            }
+        })
+
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
@@ -114,7 +118,7 @@ open class MainWindow : JFrame() {
                     else if (it.button == MouseEvent.BUTTON3) {
                         startPoint = it.point
                     }
-                    operations.add(Rollback(plane, trgsz, mainPanel.size))
+                    operations.add(Rollback(trgsz))
                     numButtonPressed = it.button
                 }
             }
