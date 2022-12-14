@@ -231,15 +231,15 @@ open class MainWindow : JFrame() {
                 "Балакин Александр", "Иванов Владислав",
                 "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
                 "Цымбал Данила", "Нигматов Аяз", "Домашев Данил",
-                "Шилин Юрий Эдуардович"
+                "Шилин Юрий Эдуардович", "Трепачко Данила"
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
-            g2d.drawString("Над проектом работали", width / 4, 50)
+            g2d.drawString("Над проектом работали", width / 4, 50).apply { CENTER_ALIGNMENT }
 
             try {
-                Thread.sleep(200)
-                k += 20
+                Thread.sleep(8)
+                k += 1
                 if (k > width) {
                     k = 0
                 }
