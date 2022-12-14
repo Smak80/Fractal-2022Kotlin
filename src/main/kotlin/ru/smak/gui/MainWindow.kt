@@ -21,9 +21,9 @@ import kotlin.math.abs
 open class MainWindow : JFrame() {
     private var plane: Plane
     private var fp: FractalPainter
-    var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
+    var image = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
 
-        private class Rollback(
+    private class Rollback(
         private val plane: Plane,
         private val targetSz: TargetSz,
         private val dimension: Dimension
@@ -48,7 +48,7 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
-    var checkbox= createDynamicIt()
+    var checkbox = createDynamicIt()
 
     init {
         val menuBar = JMenuBar().apply {
@@ -79,9 +79,9 @@ open class MainWindow : JFrame() {
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width=mainPanel.width
-                plane.height=mainPanel.height
-                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+                plane.width = mainPanel.width
+                plane.height = mainPanel.height
+                makeOneToOne(plane, trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
 
@@ -132,12 +132,13 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                            if (checkbox.isSelected){
-                            val sq: Int = plane.height * plane.width
-                            val new_sq = abs(x2-x1) * abs(y2-y1)
-                            var d: Int = 100
-                            if(sq/new_sq<100) d = (sq/new_sq).toInt()
-                            Mandelbrot.maxIterations += d}
+                            if (checkbox.isSelected) {
+                                val sq: Int = plane.height * plane.width
+                                val new_sq = abs(x2 - x1) * abs(y2 - y1)
+                                var d: Int = 100
+                                if (sq / new_sq < 100) d = (sq / new_sq).toInt()
+                                Mandelbrot.maxIterations += d
+                            }
                             makeOneToOne(
                                 plane,
                                 x1,
@@ -231,7 +232,7 @@ open class MainWindow : JFrame() {
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
-            g2d.drawString("Над проектом работали", width / 4, 50).apply { CENTER_ALIGNMENT }
+            g2d.drawString("Над проектом Fractal работали", width / 4, 50).apply { CENTER_ALIGNMENT }
 
             try {
                 Thread.sleep(8)
@@ -263,13 +264,14 @@ open class MainWindow : JFrame() {
                 this.repaint()
             }
         }
-        
+
         val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
-            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected)
+            val fractalData =
+                FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
-        
+
         val saveImageMenuItem = JMenuItem("Изображение")
         val fileChooser = JFileChooser()
         saveImageMenuItem.addMouseListener(object : MouseAdapter() {
@@ -284,8 +286,8 @@ open class MainWindow : JFrame() {
                 )
             }
         })
-        
-        val saveMenu = JMenu("Сохранить как")
+
+        val saveMenu = JMenu("Сохранить как...")
         saveMenu.add(selfFormatMenuItem)
         saveMenu.addSeparator()
         saveMenu.add(saveImageMenuItem)
@@ -317,11 +319,11 @@ open class MainWindow : JFrame() {
         return aboutMenu
     }
 
-    private fun createSaveButtonImage(): JMenu{
+    private fun createSaveButtonImage(): JMenu {
         val btnSave = JMenu("Save")
-        btnSave.addActionListener{
-            val img = BufferedImage(mainPanel.width,mainPanel.height+infoHeight,BufferedImage.TYPE_INT_RGB)
-            preparImg(img,mainPanel,plane)
+        btnSave.addActionListener {
+            val img = BufferedImage(mainPanel.width, mainPanel.height + infoHeight, BufferedImage.TYPE_INT_RGB)
+            preparImg(img, mainPanel, plane)
             SaveImage(img).actionPerformed(null)
         }
         btnSave.isVisible = true
@@ -329,30 +331,44 @@ open class MainWindow : JFrame() {
     }
 
 
-
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
 
-        val colorSchema1 = JButton()
+        val colorSchema1 = JRadioButton()
         colorSchema1.text = "Цветовая схема #1"
-        colorSchema1.addActionListener { colorFuncIndex = 0
+
+        val colorSchema2 = JRadioButton()
+        colorSchema2.text = "Цветовая схема #2"
+
+        val colorSchema3 = JRadioButton()
+        colorSchema3.text = "Цветовая схема #3"
+
+        colorSchema1.addActionListener {
+            colorFuncIndex = 0
             fp.colorFunc = ColorFuncs[colorFuncIndex]
             colorScheme = ColorFuncs[colorFuncIndex]
             mainPanel.repaint()
-            }
-        val colorSchema2 = JButton()
-        colorSchema2.text = "Цветовая схема #2"
-        colorSchema2.addActionListener { colorFuncIndex = 1
-            fp.colorFunc = ColorFuncs[colorFuncIndex]
-            colorScheme = ColorFuncs[colorFuncIndex]
-            mainPanel.repaint()}
-        val colorSchema3 = JButton()
-        colorSchema3.text = "Цветовая схема #3"
-        colorSchema3.addActionListener { colorFuncIndex = 2
-            fp.colorFunc = ColorFuncs[colorFuncIndex]
-            colorScheme = ColorFuncs[colorFuncIndex]
-            mainPanel.repaint()}
+            colorSchema3.isSelected = false
+            colorSchema2.isSelected = false
+        }
 
+        colorSchema2.addActionListener {
+            colorFuncIndex = 1
+            fp.colorFunc = ColorFuncs[colorFuncIndex]
+            colorScheme = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()
+            colorSchema1.isSelected = false
+            colorSchema3.isSelected = false
+        }
+
+        colorSchema3.addActionListener {
+            colorFuncIndex = 2
+            fp.colorFunc = ColorFuncs[colorFuncIndex]
+            colorScheme = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()
+            colorSchema1.isSelected = false
+            colorSchema2.isSelected = false
+        }
 
         colorMenu.add(colorSchema1)
         colorMenu.add(colorSchema2)
@@ -399,7 +415,7 @@ open class MainWindow : JFrame() {
     private fun createDynamicIt(): JMenu {
         val dynMenu = JMenu("Переключатель динамической итерации")
         val dynIt = JCheckBox("Динамическая итерация")
-        dynIt.isSelected=true
+        dynIt.isSelected = true
 
         dynMenu.add(dynIt)
         return dynMenu
