@@ -22,7 +22,6 @@ import kotlin.random.Random
 open class MainWindow : JFrame() {
     private var plane: Plane
     private var fp: FractalPainter
-    private val fp: FractalPainter
     var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
 
         private class Rollback(
@@ -180,7 +179,7 @@ open class MainWindow : JFrame() {
                         startPoint?.let {
                             val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
                             val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
-                            trgsz.shiftImageOnPanel(shiftX, shiftY, plane)
+                            trgsz.shiftImage(shiftX, shiftY, plane)
                             makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
@@ -227,15 +226,16 @@ open class MainWindow : JFrame() {
                 "Балакин Александр", "Иванов Владислав",
                 "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
                 "Цымбал Данила", "Нигматов Аяз", "Домашев Данил",
-                "Шилин Юрий Эдуардович"
+                "Шилин Юрий Эдуардович", "Трепачко Данила",
+                "Алуна Фис"
             )
 
             pplArray.forEachIndexed { i, s -> g2d.drawString(s, k + i * 20, l + i * 30) }
-            g2d.drawString("Над проектом работали", width / 4, 50)
+            g2d.drawString("Над проектом работали", width / 4, 50).apply { CENTER_ALIGNMENT }
 
             try {
-                Thread.sleep(200)
-                k += 20
+                Thread.sleep(8)
+                k += 1
                 if (k > width) {
                     k = 0
                 }
@@ -258,13 +258,15 @@ open class MainWindow : JFrame() {
                 fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
                 fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
                 colorScheme = ColorFuncs[fractalData.colorFuncIndex]
+                checkbox.isSelected = fractalData.isDynamical
+                trgsz.getTargetFromPlane(plane)
                 this.repaint()
             }
         }
         
         val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
-            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
         
