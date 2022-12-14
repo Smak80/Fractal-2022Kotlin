@@ -184,7 +184,7 @@ open class MainWindow : JFrame() {
                         startPoint?.let {
                             val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
                             val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
-                            trgsz.shiftImageOnPanel(shiftX, shiftY, plane)
+                            trgsz.shiftImage(shiftX, shiftY, plane)
                             makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
@@ -262,13 +262,15 @@ open class MainWindow : JFrame() {
                 fp.plane.yEdges = Pair(fractalData.yMin, fractalData.yMax)
                 fp.colorFunc = ColorFuncs[fractalData.colorFuncIndex]
                 colorScheme = ColorFuncs[fractalData.colorFuncIndex]
+                checkbox.isSelected = fractalData.isDynamical
+                trgsz.getTargetFromPlane(plane)
                 this.repaint()
             }
         }
         
         val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
-            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex)
+            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected)
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
         
