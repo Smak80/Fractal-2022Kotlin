@@ -3,7 +3,6 @@ package ru.smak.gui
 import ru.smak.graphics.Converter
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
-import ru.smak.graphics.testFunc
 import ru.smak.gui.MainWindow.Companion.GROW
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
