@@ -22,7 +22,6 @@ import kotlin.random.Random
 open class MainWindow : JFrame() {
     private var plane: Plane
     private var fp: FractalPainter
-    private val fp: FractalPainter
     var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
 
         private class Rollback(
