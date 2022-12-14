@@ -1,5 +1,8 @@
+@file:OptIn(DelicateCoroutinesApi::class)
+
 package ru.smak.video.operations
 
+import kotlinx.coroutines.*
 import ru.smak.graphics.Plane
 import ru.smak.video.entities.Shot
 import ru.smak.video.objects.VideoSettings
@@ -16,19 +19,19 @@ import javax.swing.JFileChooser
 class VideoRecorderWindowOperations(
     private val _mainWindow: VideoWindow,
     private val _shotsListWindow: ShotsListWindow,
-    private val _progressWindow: ProgressWindow,
     private val _service: VideoRecorderWindowService
 ) : MouseAdapter() {
     override fun mouseClicked(e: MouseEvent?) {
-
-        if (e == null) return
+        if (e == null)
+        {
+            return
+        }
 
         when (e.component.name) {
             "AddShotButton" -> onAddShotButtonClick()
             "ClearShotsButton" -> onClearShotsButtonClick()
             "ShowShotsButton" -> onShowShotsButtonClick()
             "CreateVideoButton" -> onCreateVideoButtonClick()
-
             else -> {
                 throw IllegalArgumentException("Cannot recognize button name")
             }
@@ -67,9 +70,10 @@ class VideoRecorderWindowOperations(
     }
 
     private fun onCreateVideoButtonClick() {
-
-        // todo: onClose (bug: starting video creation)
-        // todo: alert if shotsCount == 0
+        if (VideoSettings.getKeyShotsCount() == 0)
+        {
+            return
+        }
 
         val videoHeight = _mainWindow.heightSpinner.value as Int
         val videoWidth = _mainWindow.widthSpinner.value as Int
@@ -91,14 +95,31 @@ class VideoRecorderWindowOperations(
             videoWidth,
             videoDuration,
             videoFramerate,
-            filename
+            filename,
+            VideoSettings.getKeyShots()
         )
 
-        VideoSettings.requiredShotsCount = videoFramerate * videoDuration - 1;
+        val requiredShotsCount = videoFramerate * videoDuration - 1;
+        clearAllShots()
 
-        // todo: вызывать в отдельном потоке
-       // _progressWindow.isVisible = true;
+        val progressBarWindow = ProgressWindow(_mainWindow, requiredShotsCount)
+            .apply {
+                isVisible = true
+            }
 
-        _service.execute(createModel)
+        GlobalScope.launch {
+            _service.execute(createModel)
+        }
+    }
+
+    private fun clearAllShots()
+    {
+        _shotsListWindow.apply {
+            dispose()
+            repaint()
+            isVisible = false
+        }
+
+        VideoSettings.dispose()
     }
 }

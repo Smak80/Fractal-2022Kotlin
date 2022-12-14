@@ -16,7 +16,8 @@ class VideoWindow(frame: JFrame) : JFrame() {
     var plane = Plane();
 
     private val _shotsListWindow = ShotsListWindow(this).apply { isVisible = false; };
-    private val _progressWindow = ProgressWindow(this).apply { isVisible = false; };
+
+    private val _service = VideoRecorderWindowService()
 
     val shotsCountLabel = JLabel("Shots count: ${VideoSettings.getKeyShotsCount()}")
 
@@ -205,95 +206,16 @@ class VideoWindow(frame: JFrame) : JFrame() {
     }
 
     private fun setupEventListeners() {
-        val videoRecorderWindowService = VideoRecorderWindowService()
         val videoRecorderWindowOperations = VideoRecorderWindowOperations(
             this,
             _shotsListWindow,
-            _progressWindow,
-            videoRecorderWindowService
+            _service
         )
 
         _addShotBtn.addMouseListener(videoRecorderWindowOperations)
         _clearBtn.addMouseListener(videoRecorderWindowOperations)
         _showShotsBtn.addMouseListener(videoRecorderWindowOperations)
         _createBtn.addMouseListener(videoRecorderWindowOperations)
-
-//        _addShotBtn.addMouseListener(object : MouseAdapter() {
-//            override fun mouseClicked(e: MouseEvent?) {
-//                e?.apply {
-//                    if (button == 1) {
-//                        VideoSettings.addShot(
-//                            Shot(Plane(plane.xMin, plane.xMax, plane.yMin, plane.yMax)
-//                                .apply {
-//                                    width = 100;
-//                                    height = 100;
-//                                })
-//                        );
-//                        refreshShotsCount();
-//
-//                        _shotsListWindow.setThumbnails(_videoSettings.getKeyShots());
-//                        _shotsListWindow.repaint();
-//                        _shotsListWindow.isVisible = true;
-//
-//                        // todo: show dialog only if it's needed?
-//
-//                    }
-//                }
-//            }
-//        });
-//
-//        _clearBtn.addMouseListener(object : MouseAdapter() {
-//            override fun mouseClicked(e: MouseEvent?) {
-//                e?.apply {
-//                    if (button == 1) {
-//                        VideoSettings.dispose();
-//                        _shotsListWindow.dispose();
-//                        _shotsListWindow.repaint();
-//                        _shotsListWindow.isVisible = true;
-//                        refreshShotsCount();
-//                    }
-//                }
-//            }
-//        })
-//
-//        _createBtn.addMouseListener(object : MouseAdapter() {
-//            override fun mouseClicked(e: MouseEvent?) {
-//                e?.apply {
-//                    if (button == 1) {
-//                        VideoSettings.width = _widthSpinner.value as Int;
-//                        VideoSettings.height = _heightSpinner.value as Int;
-//                        VideoSettings.fps = _fpsSpinner.value as Int;
-//                        VideoSettings.duration = _durationSpinner.value as Int;
-//
-//                        //val filter: FileFilter = FileFilter {  }("MP3 File", "mp3") // TODO:
-//
-//
-//                        val fileChooser = JFileChooser().apply { selectedFile = File("video.mp4") };
-//
-//                        fileChooser.showSaveDialog(_mainPanel);
-//
-//                        var filename = fileChooser.selectedFile.absolutePath;
-//
-//                        if(!filename.contains(".mp4"))
-//                            filename = filename.plus(".mp4");
-//
-//                        VideoCreator.createVideo(filename, VideoSettings.calculateAllShots())
-//                    }
-//                }
-//            }
-//        });
-//
-//        _showShotsBtn.addMouseListener(object : MouseAdapter() {
-//            override fun mouseClicked(e: MouseEvent?) {
-//                e?.apply {
-//                    if (button == 1) {
-//                        _shotsListWindow.isVisible = true;
-//                    };
-//                }
-//            }
-//
-//        });
-
     }
 
 

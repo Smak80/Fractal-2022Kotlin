@@ -1,22 +1,29 @@
 package ru.smak.video.ui.windows
 
-import ru.smak.video.objects.VideoSettings
-import ru.smak.video.operations.ProgressWindowOperations
-import ru.smak.video.operations.VideoRecorderWindowOperations
-import java.awt.Color
+import ru.smak.video.services.imageCreated
+import ru.smak.video.services.imageCreatingFinished
+import ru.smak.video.services.videoRecordingFinished
+import ru.smak.video.services.videoRecordingProcessing
 import java.awt.Dimension
 import javax.swing.GroupLayout
 import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JProgressBar
+import javax.swing.JTextField
+import kotlin.math.min
 
-class ProgressWindow(parent: JFrame) : JFrame() {
+class ProgressWindow(
+    parent: JFrame,
+    private val _totalFramesCount: Int
+) : JFrame() {
 
-    val progressBar = JProgressBar(0,VideoSettings.requiredShotsCount);
+    var progressBar = JProgressBar(0, _totalFramesCount)
 
     private val _mainPanel = JPanel();
-    private val _cancelBtn = JButton("Cancel").apply { name = "CancelButton" };
+    private val _processTextBar = JTextField("Process name");
+
+    private var _progress = 0
 
     companion object { // todo: abstract class Window with these objects to inherit?
         val SHRINK = GroupLayout.PREFERRED_SIZE;
@@ -24,21 +31,49 @@ class ProgressWindow(parent: JFrame) : JFrame() {
     }
 
     init {
-
         size = Dimension(400,150);
         isResizable = false;
         isAlwaysOnTop = true;
         defaultCloseOperation = DISPOSE_ON_CLOSE;
         setLocationRelativeTo(parent);
 
+        _processTextBar.apply {
+            minimumSize = Dimension(300, 30)
+            preferredSize = Dimension(300, 30)
+            maximumSize = Dimension(300, 30)
+            text = "Frames creating..."
+            isEditable = false
+        }
+
         setupLayout();
         setupEventListeners();
     }
 
     private fun setupEventListeners() {
-        val operations = ProgressWindowOperations();
+        imageCreated.addListener { _, number ->
+            _progress += 1
+            progressBar.value = _progress
+            _processTextBar.text = "Frames creating... $_progress / $_totalFramesCount"
+            println("Image created: $number / $_totalFramesCount")
+        }
 
-        _cancelBtn.addMouseListener(operations);
+        imageCreatingFinished.addListener { _, _ ->
+            progressBar.value = _totalFramesCount
+            _progress = 0
+            _processTextBar.text = "Frames creating finished!"
+            println("Image creating finished")
+        }
+
+        videoRecordingProcessing.addListener {_,_ ->
+            _progress += 1
+            _processTextBar.text = "Video rendering... $_progress / $_totalFramesCount"
+            progressBar.value = _progress
+        }
+
+        videoRecordingFinished.addListener {_, time ->
+            _processTextBar.text = "Video creating finished, time: $time"
+            println("Video creating finished, time: $time")
+        }
     }
 
     private fun setupLayout()
@@ -48,8 +83,8 @@ class ProgressWindow(parent: JFrame) : JFrame() {
                 createSequentialGroup()
                     .addGap(10)
                     .addComponent(progressBar, 10, SHRINK, SHRINK)
-                    .addGap(20)
-                    .addComponent(_cancelBtn,20, SHRINK, SHRINK)
+                    .addGap(30)
+                    .addComponent(_processTextBar, GROW, GROW, GROW)
                     .addGap(10)
             )
 
@@ -57,12 +92,10 @@ class ProgressWindow(parent: JFrame) : JFrame() {
                 createParallelGroup()
                     .addGap(10)
                     .addComponent(progressBar, SHRINK, GROW, GROW)
-                    .addComponent(_cancelBtn,20, SHRINK, SHRINK)
+                    .addGap(70)
+                    .addComponent(_processTextBar, GROW, GROW, GROW)
             )
         }
         add(_mainPanel);
     }
-
-
-
 }
