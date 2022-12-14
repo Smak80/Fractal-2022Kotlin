@@ -1,10 +1,11 @@
 package ru.smak.video.models
 
+import ru.smak.video.entities.Shot
+
 /*
 * Модель окна создания видео.
 * */
-data class CreateVideoModel
-(
+data class CreateVideoModel(
     // Высота выходного видео в пикселях.
     val height: Int,
 
@@ -18,5 +19,8 @@ data class CreateVideoModel
     val fps: Int = 24,
 
     // Имя сохраняемого файла.
-    val filename: String
+    val filename: String,
+
+    // Ключевые кадры
+    val keyShots: MutableList<Shot>
 )

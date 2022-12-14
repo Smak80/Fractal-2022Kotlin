@@ -22,6 +22,8 @@ import kotlin.random.Random
 open class MainWindow : JFrame() {
     private var plane: Plane
     private var fp: FractalPainter
+    private val fp: FractalPainter
+    var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
 
         private class Rollback(
         private val plane: Plane,
@@ -48,12 +50,13 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
+    var checkbox= createDynamicalItsButton()
 
     init {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
             add(createColorMenu())
-            add(createDynamicalItsButton())
+            add(checkbox)
             add(createCtrlZButton())
             add(createAboutButton())
         }
@@ -77,9 +80,9 @@ open class MainWindow : JFrame() {
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
                 super.componentResized(e)
-                plane.width = mainPanel.width
-                plane.height = mainPanel.height
-                makeOneToOne(plane, trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
+                plane.width=mainPanel.width
+                plane.height=mainPanel.height
+                makeOneToOne(plane,trgsz, mainPanel.size)//Делает панель мастштабом 1 к 1
             }
         })
 
@@ -130,11 +133,12 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
+                            if (checkbox.isSelected){
                             val sq: Int = plane.height * plane.width
                             val new_sq = abs(x2-x1) * abs(y2-y1)
                             var d: Int = 100
                             if(sq/new_sq<100) d = (sq/new_sq).toInt()
-                            Mandelbrot.maxIterations += d
+                            Mandelbrot.maxIterations += d}
                             makeOneToOne(
                                 plane,
                                 x1,
@@ -176,7 +180,7 @@ open class MainWindow : JFrame() {
                         startPoint?.let {
                             val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
                             val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
-                            trgsz.shiftImage(shiftX, shiftY, plane)
+                            trgsz.shiftImageOnPanel(shiftX, shiftY, plane)
                             makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
@@ -304,12 +308,26 @@ open class MainWindow : JFrame() {
                     frame.minimumSize = Dimension(800, 500)
                     frame.pack()
                     frame.defaultCloseOperation = DISPOSE_ON_CLOSE
+
                 }
             }
         })
         return aboutButton
 
     }
+
+    private fun createSaveButtonImage(plane: Plane): JButton{
+        val btnSave = JButton("Save")
+        btnSave.addActionListener{
+            val img = BufferedImage(mainPanel.width,mainPanel.height+infoHeight,BufferedImage.TYPE_INT_RGB)
+            preparImg(img,mainPanel,plane)
+            SaveImage(img).actionPerformed(null)
+        }
+        btnSave.isVisible = true
+        return btnSave
+    }
+
+
 
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")
@@ -379,6 +397,7 @@ open class MainWindow : JFrame() {
 
     private fun createDynamicalItsButton(): JCheckBox {
         val dynIt = JCheckBox("Динамическая итерация")
+        dynIt.isSelected=true
         return dynIt
     }
 
@@ -398,6 +417,7 @@ open class MainWindow : JFrame() {
         )
 
         return ctrlzButton
+
     }
 
     private fun createRecordBtn(plane: Plane): JButton {
