@@ -318,16 +318,20 @@ open class MainWindow : JFrame() {
         colorSchema1.text = "Цветовая схема #1"
         colorSchema1.addActionListener { colorFuncIndex = 0
             fp.colorFunc = ColorFuncs[colorFuncIndex]
-            mainPanel.repaint()}
+            colorScheme = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()
+            }
         val colorSchema2 = JButton()
         colorSchema2.text = "Цветовая схема #2"
         colorSchema2.addActionListener { colorFuncIndex = 1
             fp.colorFunc = ColorFuncs[colorFuncIndex]
+            colorScheme = ColorFuncs[colorFuncIndex]
             mainPanel.repaint()}
         val colorSchema3 = JButton()
         colorSchema3.text = "Цветовая схема #3"
         colorSchema3.addActionListener { colorFuncIndex = 2
             fp.colorFunc = ColorFuncs[colorFuncIndex]
+            colorScheme = ColorFuncs[colorFuncIndex]
             mainPanel.repaint()}
 
 
