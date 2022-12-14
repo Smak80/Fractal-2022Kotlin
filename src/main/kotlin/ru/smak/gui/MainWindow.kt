@@ -25,6 +25,7 @@ open class MainWindow : JFrame() {
     private var colorFuncIndex: Int
     private var plane: Plane
     private val fp: FractalPainter
+    var image = BufferedImage(1,1,BufferedImage.TYPE_INT_RGB)
 
     private class Rollback(
         private val plane: Plane,
@@ -319,6 +320,18 @@ open class MainWindow : JFrame() {
         return aboutButton
 
     }
+
+    private fun createSaveButtonImage(plane: Plane): JButton{
+        val btnSave = JButton("Save")
+        btnSave.addActionListener{
+            val img = BufferedImage(mainPanel.width,mainPanel.height+infoHeight,BufferedImage.TYPE_INT_RGB)
+            preparImg(img,mainPanel,plane)
+            SaveImage(img).actionPerformed(null)
+        }
+        btnSave.isVisible = true
+        return btnSave
+    }
+
 
 
     private fun createColorMenu(): JMenu {
