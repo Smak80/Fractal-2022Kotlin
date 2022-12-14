@@ -16,7 +16,6 @@ import java.io.File
 import javax.swing.*
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.math.abs
-import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
@@ -49,13 +48,13 @@ open class MainWindow : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
-    var checkbox= createDynamicalItsButton()
+    var checkbox= createDynamicIt()
 
     init {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
             add(createColorMenu())
-            add(checkbox)
+            add(createDynamicIt())
             add(createCtrlZButton())
             add(createAboutButton())
             add(createSaveButtonImage())
@@ -222,7 +221,7 @@ open class MainWindow : JFrame() {
             g2d.color = Color.RED
             g2d.font = sFont
 
-            val pplArray = listOf<String>(
+            val pplArray = listOf(
                 "Потасьев Никита", "Щербанев Дмитрий",
                 "Балакин Александр", "Иванов Владислав",
                 "Хусаинов Данил", "Даянов Рамиль", "Королева Ульяна",
@@ -299,9 +298,9 @@ open class MainWindow : JFrame() {
         return fileMenu
     }
 
-    private fun createAboutButton(): JButton {
-        val aboutButton = JButton("О программе")
-        aboutButton.addMouseListener(object : MouseAdapter() {
+    private fun createAboutButton(): JMenu {
+        val aboutMenu = JMenu("О программе")
+        aboutMenu.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
@@ -315,12 +314,11 @@ open class MainWindow : JFrame() {
                 }
             }
         })
-        return aboutButton
-
+        return aboutMenu
     }
 
-    private fun createSaveButtonImage(): JButton{
-        val btnSave = JButton("Save")
+    private fun createSaveButtonImage(): JMenu{
+        val btnSave = JMenu("Save")
         btnSave.addActionListener{
             val img = BufferedImage(mainPanel.width,mainPanel.height+infoHeight,BufferedImage.TYPE_INT_RGB)
             preparImg(img,mainPanel,plane)
@@ -363,8 +361,8 @@ open class MainWindow : JFrame() {
         return colorMenu
     }
 
-    private fun createOpenButton(): JButton {
-        val openButton = JButton("Открыть")
+    private fun createOpenButton(): JMenu {
+        val openButton = JMenu("Открыть")
         val fileChooser = JFileChooser()
         val filter = FileNameExtensionFilter(
             "image", "JPG", ".PNG"
@@ -380,8 +378,8 @@ open class MainWindow : JFrame() {
         return openButton
     }
 
-    private fun createSaveButton(): JButton {
-        val saveButton = JButton("Сохранить")
+    private fun createSaveButton(): JMenu {
+        val saveButton = JMenu("Сохранить")
         val fileChooser = JFileChooser()
         saveButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
@@ -398,15 +396,18 @@ open class MainWindow : JFrame() {
         return saveButton
     }
 
-    private fun createDynamicalItsButton(): JCheckBox {
+    private fun createDynamicIt(): JMenu {
+        val dynMenu = JMenu("Переключатель динамической итерации")
         val dynIt = JCheckBox("Динамическая итерация")
         dynIt.isSelected=true
-        return dynIt
+
+        dynMenu.add(dynIt)
+        return dynMenu
     }
 
-    private fun createCtrlZButton(): JButton {
-        val ctrlzButton = JButton("Отменить предыдущее действие")
-        ctrlzButton.addMouseListener(
+    private fun createCtrlZButton(): JMenu {
+        val ctrlZMenu = JMenu("Отменить предыдущее действие")
+        ctrlZMenu.addMouseListener(
             object : MouseAdapter() {
                 override fun mouseClicked(e: MouseEvent?) {
                     super.mouseClicked(e)
@@ -419,12 +420,12 @@ open class MainWindow : JFrame() {
             }
         )
 
-        return ctrlzButton
+        return ctrlZMenu
 
     }
 
-    private fun createRecordBtn(plane: Plane): JButton {
-        val btn = JButton("Record")
+    private fun createRecordBtn(plane: Plane): JMenu {
+        val btn = JMenu("Record")
 
         btn.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
