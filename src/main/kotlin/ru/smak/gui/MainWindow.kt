@@ -1,9 +1,7 @@
 package ru.smak.gui
 
 import ru.smak.graphics.*
-import ru.smak.math.Complex
-import ru.smak.math.Julia
-import ru.smak.math.Mandelbrot
+import ru.smak.math.*
 import ru.smak.tools.FractalData
 import ru.smak.tools.FractalDataFileLoader
 import ru.smak.tools.FractalDataFileSaver
@@ -22,11 +20,10 @@ import kotlin.random.Random
 
 
 open class MainWindow : JFrame() {
-    private var colorFuncIndex: Int
     private var plane: Plane
-    private val fp: FractalPainter
+    private var fp: FractalPainter
 
-    private class Rollback(
+        private class Rollback(
         private val plane: Plane,
         private val targetSz: TargetSz,
         private val dimension: Dimension
@@ -66,18 +63,15 @@ open class MainWindow : JFrame() {
         defaultCloseOperation = EXIT_ON_CLOSE
         minimumSize = minSz
 
-        colorFuncIndex = Random.nextInt(ColorFuncs.size)
-        val colorScheme = ColorFuncs[colorFuncIndex]
+
         plane = Plane(-2.0, 1.0, -1.0, 1.0)
 
         trgsz.getTargetFromPlane(plane)
-        fp = FractalPainter(Mandelbrot()::isInSet, colorScheme, plane)
-        //val fpj = FractalPainter(Julia()::isInSet, ::testFunc, plane)
+        fp = FractalPainter(fractalScheme, colorScheme, plane)
+
         mainPanel = GraphicsPanel().apply {
             background = Color.WHITE
             addPainter(fp)
-            //addPainter(fpj)
-
         }
 
         mainPanel.addComponentListener(object : ComponentAdapter() {
@@ -322,10 +316,20 @@ open class MainWindow : JFrame() {
 
         val colorSchema1 = JButton()
         colorSchema1.text = "Цветовая схема #1"
+        colorSchema1.addActionListener { colorFuncIndex = 0
+            fp.colorFunc = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()}
         val colorSchema2 = JButton()
         colorSchema2.text = "Цветовая схема #2"
+        colorSchema2.addActionListener { colorFuncIndex = 1
+            fp.colorFunc = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()}
         val colorSchema3 = JButton()
         colorSchema3.text = "Цветовая схема #3"
+        colorSchema3.addActionListener { colorFuncIndex = 2
+            fp.colorFunc = ColorFuncs[colorFuncIndex]
+            mainPanel.repaint()}
+
 
         colorMenu.add(colorSchema1)
         colorMenu.add(colorSchema2)
@@ -422,7 +426,10 @@ open class MainWindow : JFrame() {
         const val GROW = GroupLayout.DEFAULT_SIZE
         const val SHRINK = GroupLayout.PREFERRED_SIZE
 
-        var colorScheme: (Float) -> Color = ::testFunc
+        var colorFuncIndex: Int = 0
+        var FractalFuncIndex: Int = 0
+        var colorScheme = ColorFuncs[colorFuncIndex]
+        var fractalScheme = FractalFuncs[FractalFuncIndex]
     }
 
     // TODO: for testing video creation
