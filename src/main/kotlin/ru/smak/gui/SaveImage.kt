@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.image.BufferedImage
 import java.io.File
+import java.io.FileFilter
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -30,28 +31,43 @@ class SaveImage(val image : BufferedImage) : ActionListener {
         val fileChooser = JFileChooser().apply {
 
         }
-        val filter = FileNameExtensionFilter("jpg", "JPG")
-        val filter2 = FileNameExtensionFilter("png", "PNG")
-        fileChooser.fileFilter = filter
-        fileChooser.fileFilter = filter2
+        val filterList = mutableListOf<FileNameExtensionFilter>()
+        filterList.add(FileNameExtensionFilter("Format jpg", "JPG","JPEG"))
+        filterList.add(FileNameExtensionFilter("Format jpeg", "JPEG"))
+        filterList.add(FileNameExtensionFilter("Format png", "PNG"))
+        filterList.forEach{v->fileChooser.fileFilter = v}
         val result: Int = fileChooser.showSaveDialog(null)
         var saveFile: File? = fileChooser.selectedFile
-        var isExt = false
+        var isExt:String? = null
         val filters =fileChooser.choosableFileFilters
         if(saveFile !=null)
-            for (i in 1 until filters.size)
+            for (i in 0 until filterList.size)
             {
-                if(saveFile.name.lowercase().endsWith('.'+filters[i].description))
-                    isExt = true
+                filterList[i].extensions.forEach {
+                    saveFile?.let {v->
+                        if (v.name.lowercase().endsWith('.' + it.lowercase()))
+                            isExt = it.lowercase()
+                    }
+                }
             }
-        if (!isExt && saveFile!=null)  saveFile = File("$saveFile.jpg")
+        if (isExt == null && saveFile!=null) {
+            saveFile = File("$saveFile.jpg")
+            isExt="jpg"
+        }
         if (result == JFileChooser.APPROVE_OPTION){
             try {
-                ImageIO.write(image,"jpg", saveFile)
+                ImageIO.write(image,isExt, saveFile)
                 println("Saved successful ! ")
             } catch (e: Exception){
                 return
             }
         }
     }
+
+
+
+
 }
+
+
+
