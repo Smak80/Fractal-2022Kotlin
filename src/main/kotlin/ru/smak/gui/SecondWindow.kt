@@ -29,7 +29,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
         defaultCloseOperation = DISPOSE_ON_CLOSE
         minimumSize = minSz
 
-        val plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        val plane = Plane(-2.0, 2.0, -1.0, 1.0)
         val fpj = FractalPainter(FractalFuncs[1], colorScheme, plane)
         trgsz.getTargetFromPlane(plane)
         secondPanel = GraphicsPanel().apply {
