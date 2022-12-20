@@ -23,14 +23,17 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
     val trgsz = TargetSz()
     private var startPoint: Point? = null
     private var numButtonPressed: Int = 0
+    private var plane : Plane = Plane(-2.0, 1.0, -1.0, 1.0)
+    private var fpj : FractalPainter = FractalPainter(FractalFuncs[1], colorScheme, plane)
+
 
     init {
 
         defaultCloseOperation = DISPOSE_ON_CLOSE
         minimumSize = minSz
 
-        val plane = Plane(-2.0, 1.0, -1.0, 1.0)
-        val fpj = FractalPainter(FractalFuncs[1], colorScheme, plane)
+        plane = Plane(-2.0, 1.0, -1.0, 1.0)
+        fpj = FractalPainter(FractalFuncs[1], colorScheme, plane)
         trgsz.getTargetFromPlane(plane)
         secondPanel = GraphicsPanel().apply {
             background = Color.WHITE
@@ -133,5 +136,9 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
                     .addGap(8)
             )
         }
+    }
+    fun changeColor(colorScheme: (Float) -> Color){
+        fpj.colorFunc = colorScheme
+        repaint()
     }
 }

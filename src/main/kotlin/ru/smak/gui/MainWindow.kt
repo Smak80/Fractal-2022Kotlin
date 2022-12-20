@@ -44,6 +44,7 @@ open class MainWindow : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(1000, 600)
     val mainPanel: GraphicsPanel
+    var sw : SecondWindow? = null
 
     private val _videoWindow = VideoWindow(this).apply { isVisible = false; }
 
@@ -99,8 +100,11 @@ open class MainWindow : JFrame() {
                 override fun mouseClicked(e: MouseEvent?) {
                     super.mouseClicked(e)
                     e?.let {
-                        if (it.button == MouseEvent.BUTTON1) {
-                            SecondWindow(colorScheme).apply {
+                        if (it.button == MouseEvent.BUTTON1 && fractalScheme == FractalFuncs[0]) {
+                            sw?.let {
+                                if(isEnabled) it.dispose()
+                            }
+                            sw = SecondWindow(colorScheme).apply {
                                 Julia.selectedPoint =
                                     Complex(Converter.xScrToCrt(it.x, plane), Converter.yScrToCrt(it.y, plane))
                                 isVisible = true
@@ -369,7 +373,6 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             fractalSchema2.isSelected = false
             fractalSchema3.isSelected = false
-
         }
 
         fractalSchema2.addActionListener {
@@ -388,6 +391,7 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             fractalSchema1.isSelected = false
             fractalSchema2.isSelected = false
+
         }
 
         fractalMenu.add(fractalSchema1)
@@ -417,6 +421,11 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             colorSchema3.isSelected = false
             colorSchema2.isSelected = false
+            sw?.let {
+                if (isEnabled) {
+                    it.changeColor(colorScheme)
+                }
+            }
         }
 
         colorSchema2.addActionListener {
@@ -426,6 +435,11 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             colorSchema1.isSelected = false
             colorSchema3.isSelected = false
+            sw?.let {
+                if (isEnabled) {
+                    it.changeColor(colorScheme)
+                }
+            }
         }
 
         colorSchema3.addActionListener {
@@ -435,6 +449,11 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             colorSchema1.isSelected = false
             colorSchema2.isSelected = false
+            sw?.let {
+                if (isEnabled) {
+                    it.changeColor(colorScheme)
+                }
+            }
         }
 
         colorMenu.add(colorSchema1)
