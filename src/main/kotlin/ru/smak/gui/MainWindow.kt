@@ -26,14 +26,14 @@ open class MainWindow : JFrame() {
     private var fp: FractalPainter
     var image = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
 
-        private inner class Rollback(
+    private inner class Rollback(
         private val targetSz: TargetSz,
     ) {
         private val xMin = targetSz.targetXMin
         private val xMax = targetSz.targetXMax
         private val yMin = targetSz.targetYMin
         private val yMax = targetSz.targetYMax
-            private val maxIterations = Mandelbrot.maxIterations
+        private val maxIterations = Mandelbrot.maxIterations
         fun rollback() {
             makeOneToOne(plane, xMin, xMax, yMin, yMax, mainPanel.size, targetSz)
             Mandelbrot.maxIterations = maxIterations
@@ -54,15 +54,16 @@ open class MainWindow : JFrame() {
     var checkbox = createDynamicIt()
 
     init {
+        plane = Plane(-2.0, 1.0, -1.0, 1.0)
+
+        val videoMenu = createVideoMenu()
+
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
-            add(createColorMenu())
-            add(createFractalMenu())
-            add(checkbox)
-            add(createDynamicIt())
-            add(createCtrlZButton())
+            add(createFractalActionMenu())
             add(createAboutButton())
-            add(createSaveButtonImage())
+            add(videoMenu)
+
         }
 
         jMenuBar = menuBar
@@ -71,7 +72,7 @@ open class MainWindow : JFrame() {
         minimumSize = minSz
 
 
-        plane = Plane(-2.0, 1.0, -1.0, 1.0)
+
 
         trgsz.getTargetFromPlane(plane)
         fp = FractalPainter(fractalScheme, colorScheme, plane)
@@ -90,7 +91,7 @@ open class MainWindow : JFrame() {
             }
         })
 
-        menuBar.add(createRecordBtn(plane)) // создаем окошко для создания видео
+        videoMenu.add(createRecordBtn(plane)) // создаем окошко для создания видео
 
 
         mainPanel.addMouseListener(
@@ -108,13 +109,6 @@ open class MainWindow : JFrame() {
                     }
                 }
             })
-
-        mainPanel.addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(e: KeyEvent?) {
-                super.keyPressed(e)
-                println("HELLO")
-            }
-        })
 
         mainPanel.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
@@ -261,7 +255,7 @@ open class MainWindow : JFrame() {
     }
 
     private fun createFileMenu(): JMenu {
-        val openItem = JMenuItem("Открыть")
+        val openItem = JMenuItem("Открыть...")
         openItem.addActionListener {
             val fractalData = FractalDataFileLoader.loadData()
             if (fractalData != null) {
@@ -283,16 +277,24 @@ open class MainWindow : JFrame() {
 
         val selfFormatMenuItem = JMenuItem("Фрактал")
         selfFormatMenuItem.addActionListener {
-            val fractalData = FractalData(plane.xMin, plane.xMax, plane.yMin, plane.yMax, colorFuncIndex, checkbox.isSelected, Mandelbrot.maxIterations)
+            val fractalData = FractalData(
+                plane.xMin,
+                plane.xMax,
+                plane.yMin,
+                plane.yMax,
+                colorFuncIndex,
+                checkbox.isSelected,
+                Mandelbrot.maxIterations
+            )
             val fractalSaver = FractalDataFileSaver(fractalData)
         }
 
-        val saveImageMenuItem = JMenuItem("Изображение")
+        val saveImageMenuItem = JMenuItem("Изображение...")
         val fileChooser = JFileChooser()
         saveImageMenuItem.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
-                fileChooser.dialogTitle = "Сохранение файла"
+                fileChooser.dialogTitle = "Сохранение файла..."
                 val result = fileChooser.showSaveDialog(this@MainWindow)
                 if (result == JFileChooser.APPROVE_OPTION) JOptionPane.showMessageDialog(
                     this@MainWindow,
@@ -302,7 +304,7 @@ open class MainWindow : JFrame() {
             }
         })
 
-        val saveMenu = JMenu("Сохранить как...")
+        val saveMenu = JMenu("Сохранить как")
         saveMenu.add(selfFormatMenuItem)
         saveMenu.addSeparator()
         saveMenu.add(saveImageMenuItem)
@@ -326,7 +328,7 @@ open class MainWindow : JFrame() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
                 e?.let {
-                    if (frame.isShowing){
+                    if (frame.isShowing) {
                         frame.dispose()
                     }
                     frame.isVisible = true
@@ -334,12 +336,10 @@ open class MainWindow : JFrame() {
             }
         })
         return aboutMenu
-
-        return aboutMenu
     }
 
     private fun createSaveButtonImage(): JMenu {
-        val btnSave = JMenu("Save")
+        val btnSave = JMenu("Save...")
         btnSave.addActionListener {
             val img = BufferedImage(mainPanel.width, mainPanel.height + infoHeight, BufferedImage.TYPE_INT_RGB)
             preparImg(img, mainPanel, plane)
@@ -352,26 +352,43 @@ open class MainWindow : JFrame() {
     private fun createFractalMenu(): JMenu {
         val fractalMenu = JMenu("Выбор фрактала")
 
-        val fractalSchema1 = JButton()
+        val fractalSchema1 = JRadioButton()
         fractalSchema1.text = "Мандельброт"
-        fractalSchema1.addActionListener { FractalFuncIndex = 0
+        fractalSchema1.isSelected = true
+
+        val fractalSchema2 = JRadioButton()
+        fractalSchema2.text = "Жюлиа"
+
+        val fractalSchema3 = JRadioButton()
+        fractalSchema3.text = "Рандомный фрактал"
+
+        fractalSchema1.addActionListener {
+            FractalFuncIndex = 0
             fp.fractal = FractalFuncs[FractalFuncIndex]
             fractalScheme = FractalFuncs[FractalFuncIndex]
             mainPanel.repaint()
-        }
-        val fractalSchema2 = JButton()
-        fractalSchema2.text = "Жюлиа"
-        fractalSchema2.addActionListener { FractalFuncIndex = 1
-            fp.fractal = FractalFuncs[FractalFuncIndex]
-            fractalScheme = FractalFuncs[FractalFuncIndex]
-            mainPanel.repaint()}
-        val fractalSchema3 = JButton()
-        fractalSchema3.text = "Рандомный фрактал"
-        fractalSchema3.addActionListener { FractalFuncIndex = 2
-            fp.fractal = FractalFuncs[FractalFuncIndex]
-            fractalScheme = FractalFuncs[FractalFuncIndex]
-            mainPanel.repaint()}
+            fractalSchema2.isSelected = false
+            fractalSchema3.isSelected = false
 
+        }
+
+        fractalSchema2.addActionListener {
+            FractalFuncIndex = 1
+            fp.fractal = FractalFuncs[FractalFuncIndex]
+            fractalScheme = FractalFuncs[FractalFuncIndex]
+            mainPanel.repaint()
+            fractalSchema1.isSelected = false
+            fractalSchema3.isSelected = false
+        }
+
+        fractalSchema3.addActionListener {
+            FractalFuncIndex = 2
+            fp.fractal = FractalFuncs[FractalFuncIndex]
+            fractalScheme = FractalFuncs[FractalFuncIndex]
+            mainPanel.repaint()
+            fractalSchema1.isSelected = false
+            fractalSchema2.isSelected = false
+        }
 
         fractalMenu.add(fractalSchema1)
         fractalMenu.add(fractalSchema2)
@@ -385,6 +402,7 @@ open class MainWindow : JFrame() {
 
         val colorSchema1 = JRadioButton()
         colorSchema1.text = "Цветовая схема #1"
+        colorSchema1.isSelected = true
 
         val colorSchema2 = JRadioButton()
         colorSchema2.text = "Цветовая схема #2"
@@ -427,7 +445,7 @@ open class MainWindow : JFrame() {
     }
 
     private fun createOpenButton(): JMenu {
-        val openButton = JMenu("Открыть")
+        val openButton = JMenu("Открыть...")
         val fileChooser = JFileChooser()
         val filter = FileNameExtensionFilter(
             "image", "JPG", ".PNG"
@@ -483,10 +501,15 @@ open class MainWindow : JFrame() {
             }
         }
 
-        ctrlZMenu.inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().menuShortcutKeyMask),
-            "pressed")
-        ctrlZMenu.actionMap.put("pressed",
-            pressed)
+        ctrlZMenu.inputMap.put(
+            KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx),
+            "pressed"
+        )
+
+        ctrlZMenu.actionMap.put(
+            "pressed",
+            pressed
+        )
 
         ctrlZMenu.addMouseListener(
             object : MouseAdapter() {
@@ -502,11 +525,10 @@ open class MainWindow : JFrame() {
         )
 
         return ctrlZMenu
-
     }
 
     private fun createRecordBtn(plane: Plane): JMenu {
-        val btn = JMenu("Record")
+        val btn = JMenu("Record...")
 
         btn.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
@@ -520,6 +542,25 @@ open class MainWindow : JFrame() {
             }
         })
         return btn
+    }
+
+    private fun createFractalActionMenu(): JMenu {
+        val frActMenu = JMenu("Действия над фракталом")
+        frActMenu.add(createColorMenu())
+        frActMenu.addSeparator()
+        frActMenu.add(createFractalMenu())
+        frActMenu.addSeparator()
+        frActMenu.add(createDynamicIt())
+        frActMenu.addSeparator()
+        frActMenu.add(createCtrlZButton())
+        return frActMenu
+    }
+
+    private fun createVideoMenu(): JMenu {
+        val videoMenu = JMenu("Видео-Фото")
+        videoMenu.add(createSaveButtonImage())
+        videoMenu.addSeparator()
+        return videoMenu
     }
 
     override fun setVisible(b: Boolean) {
