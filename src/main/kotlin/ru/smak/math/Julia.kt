@@ -5,7 +5,7 @@ class Julia : Mandelbrot() {
         var selectedPoint = Complex(0.0,0.0)
     }
 
-    override fun isInSet(c : Complex) : Float {
+    override fun IsInSet(c : Complex) : Float {
         var cnt = 0
         var zn = c
         val r2 = r * r

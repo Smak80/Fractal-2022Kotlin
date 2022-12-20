@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.gui.MainWindow
+import ru.smak.math.FractalFuncs
 import ru.smak.math.Mandelbrot
 import ru.smak.video.objects.VideoSettings
 import java.awt.image.BufferedImage
@@ -27,7 +28,7 @@ class Shot(plane: Plane) {
             plane.width = width;
             plane.height = height;
 
-            val fp = FractalPainter(Mandelbrot()::isInSet, MainWindow.colorScheme, plane)
+            val fp = FractalPainter(FractalFuncs[0], MainWindow.colorScheme, plane)
 
             val img = BufferedImage(
                 width,

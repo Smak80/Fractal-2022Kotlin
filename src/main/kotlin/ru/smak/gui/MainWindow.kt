@@ -57,6 +57,8 @@ open class MainWindow : JFrame() {
         val menuBar = JMenuBar().apply {
             add(createFileMenu())
             add(createColorMenu())
+            add(createFractalMenu())
+            add(checkbox)
             add(createDynamicIt())
             add(createCtrlZButton())
             add(createAboutButton())
@@ -332,6 +334,8 @@ open class MainWindow : JFrame() {
             }
         })
         return aboutMenu
+
+        return aboutMenu
     }
 
     private fun createSaveButtonImage(): JMenu {
@@ -345,6 +349,36 @@ open class MainWindow : JFrame() {
         return btnSave
     }
 
+    private fun createFractalMenu(): JMenu {
+        val fractalMenu = JMenu("Выбор фрактала")
+
+        val fractalSchema1 = JButton()
+        fractalSchema1.text = "Мандельброт"
+        fractalSchema1.addActionListener { FractalFuncIndex = 0
+            fp.fractal = FractalFuncs[FractalFuncIndex]
+            fractalScheme = FractalFuncs[FractalFuncIndex]
+            mainPanel.repaint()
+        }
+        val fractalSchema2 = JButton()
+        fractalSchema2.text = "Жюлиа"
+        fractalSchema2.addActionListener { FractalFuncIndex = 1
+            fp.fractal = FractalFuncs[FractalFuncIndex]
+            fractalScheme = FractalFuncs[FractalFuncIndex]
+            mainPanel.repaint()}
+        val fractalSchema3 = JButton()
+        fractalSchema3.text = "Рандомный фрактал"
+        fractalSchema3.addActionListener { FractalFuncIndex = 2
+            fp.fractal = FractalFuncs[FractalFuncIndex]
+            fractalScheme = FractalFuncs[FractalFuncIndex]
+            mainPanel.repaint()}
+
+
+        fractalMenu.add(fractalSchema1)
+        fractalMenu.add(fractalSchema2)
+        fractalMenu.add(fractalSchema3)
+
+        return fractalMenu
+    }
 
     private fun createColorMenu(): JMenu {
         val colorMenu = JMenu("Выбор цветовой гаммы")

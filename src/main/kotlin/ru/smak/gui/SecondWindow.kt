@@ -4,6 +4,7 @@ import ru.smak.graphics.Converter
 import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.gui.MainWindow.Companion.GROW
+import ru.smak.math.FractalFuncs
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
 import java.awt.Color
@@ -29,7 +30,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
         minimumSize = minSz
 
         val plane = Plane(-2.0, 1.0, -1.0, 1.0)
-        val fpj = FractalPainter(Julia()::isInSet, colorScheme, plane)
+        val fpj = FractalPainter(FractalFuncs[1], colorScheme, plane)
         trgsz.getTargetFromPlane(plane)
         secondPanel = GraphicsPanel().apply {
             background = Color.WHITE
