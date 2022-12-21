@@ -555,6 +555,15 @@ open class MainWindow : JFrame() {
         dynIt = JCheckBox("Динамическая итерация")
         dynIt.isSelected = true
 
+        var prev = 200
+
+        dynIt.addActionListener(){
+            if (! dynIt.isSelected) { prev = Mandelbrot.maxIterations
+                Mandelbrot.maxIterations = 200 }
+            else Mandelbrot.maxIterations = prev
+            mainPanel.repaint()
+        }
+
         dynMenu.add(dynIt)
         return dynMenu
     }
