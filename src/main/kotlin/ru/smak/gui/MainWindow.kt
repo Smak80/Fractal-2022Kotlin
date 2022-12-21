@@ -147,7 +147,7 @@ open class MainWindow : JFrame() {
                             val x2 = rect.x2?.let { Converter.xScrToCrt(it, plane) } ?: return@let
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
-                            if (checkbox.isSelected) {
+                            if (dynIt.isSelected) {
                                 val sq: Int = plane.height * plane.width
                                 val new_sq = abs(x2 - x1) * abs(y2 - y1)
                                 var d: Int = 100
