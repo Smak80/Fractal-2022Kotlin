@@ -172,7 +172,7 @@ open class MainWindow : JFrame() {
                                 val new_sq = abs(x2 - x1) * abs(y2 - y1)
                                 var d: Int = 100
                                 if (sq / new_sq < 100) d = (sq / new_sq).toInt()
-                                Mandelbrot.maxIterations += d
+                                Mandelbrot.maxIterations += 100
                             }
                             makeOneToOne(
                                 plane,
