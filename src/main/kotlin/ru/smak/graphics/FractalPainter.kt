@@ -3,14 +3,15 @@ package ru.smak.graphics
 import kotlinx.coroutines.*
 import ru.smak.gui.Painter
 import ru.smak.math.Complex
+import ru.smak.math.InterfaceColor
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.image.BufferedImage
 
 class FractalPainter(
     var fractal: (Complex)->Float,
-    var colorFunc: (Float)->Color,
-    val plane: Plane,
+    var colorFunc: InterfaceColor,
+    var plane: Plane,
 ) :
     Painter
 {
@@ -38,7 +39,7 @@ class FractalPainter(
                         )
                     )
                     val color = if (res == 1f) Color.BLACK
-                    else colorFunc(res)
+                    else colorFunc.setColor(res)
                     picGr.color = color
                     picGr.drawLine(0, j, 1, j)
                 }
