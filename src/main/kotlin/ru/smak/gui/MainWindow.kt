@@ -65,11 +65,7 @@ open class MainWindow : JFrame() {
             add(createFileMenu())
             add(createFractalActionMenu())
             add(createAboutButton())
-
-            add(createSaveButtonImage())
-
             add(videoMenu)
-
         }
 
         jMenuBar = menuBar
@@ -295,7 +291,7 @@ open class MainWindow : JFrame() {
             }
         }
 
-        val selfFormatMenuItem = JMenuItem("Фрактал")
+        val selfFormatMenuItem = JMenuItem("Фрактал...")
         selfFormatMenuItem.addActionListener {
             val fractalData = FractalData(
                 plane.xMin,
@@ -325,10 +321,10 @@ open class MainWindow : JFrame() {
             }
         })
 
-        val saveMenu = JMenu("Сохранить как")
+        val saveMenu = JMenu("Сохранить как...")
         saveMenu.add(selfFormatMenuItem)
         saveMenu.addSeparator()
-        saveMenu.add(saveImageMenuItem)
+        saveMenu.add(createSaveButtonImage())
 
         val fileMenu = JMenu("Файл")
         fileMenu.add(openItem)
@@ -360,8 +356,8 @@ open class MainWindow : JFrame() {
     }
 
 
-    private fun createSaveButtonImage(): JMenu {
-        val btnSave = JMenu("Save")
+    private fun createSaveButtonImage(): JMenuItem {
+        val btnSave = JMenuItem("Изображение...")
         btnSave.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 super.mousePressed(e)
@@ -414,7 +410,6 @@ open class MainWindow : JFrame() {
             mainPanel.repaint()
             fractalSchema1.isSelected = false
             fractalSchema2.isSelected = false
-
         }
         
         _fractalSchemes = arrayOf(fractalSchema1, fractalSchema2, fractalSchema3)
@@ -597,6 +592,47 @@ open class MainWindow : JFrame() {
         return btn
     }
 
+    private fun createFormulaMenu(): JMenu {
+        val colorMenu = JMenu("Выбор формулы")
+
+        val formula1 = JRadioButton()
+        formula1.text = "Формула #1"
+        formula1.isSelected = true
+
+        val formula2 = JRadioButton()
+        formula2.text = "Формула #2"
+
+        val formula3 = JRadioButton()
+        formula3.text = "Формула #3"
+
+        formula1.addActionListener {
+
+            mainPanel.repaint()
+            formula3.isSelected = false
+            formula2.isSelected = false
+        }
+
+        formula2.addActionListener {
+
+            mainPanel.repaint()
+            formula1.isSelected = false
+            formula3.isSelected = false
+        }
+
+        formula3.addActionListener {
+
+            mainPanel.repaint()
+            formula1.isSelected = false
+            formula2.isSelected = false
+        }
+
+        colorMenu.add(formula1)
+        colorMenu.add(formula2)
+        colorMenu.add(formula3)
+
+        return colorMenu
+    }
+
     private fun createFractalActionMenu(): JMenu {
         val frActMenu = JMenu("Действия над фракталом")
         frActMenu.add(createColorMenu())
@@ -610,9 +646,7 @@ open class MainWindow : JFrame() {
     }
 
     private fun createVideoMenu(): JMenu {
-        val videoMenu = JMenu("Видео-Фото")
-        videoMenu.add(createSaveButtonImage())
-        videoMenu.addSeparator()
+        val videoMenu = JMenu("Запись видео")
         return videoMenu
     }
 
