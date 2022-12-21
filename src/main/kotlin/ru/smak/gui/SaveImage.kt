@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.image.BufferedImage
 import java.io.File
-import java.io.FileFilter
+
 import javax.imageio.ImageIO
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -29,11 +29,11 @@ class SaveImage(val image : BufferedImage) : ActionListener {
     override fun actionPerformed(e: ActionEvent?) {
 
         val fileChooser = JFileChooser().apply {
+            isAcceptAllFileFilterUsed = false
 
         }
         val filterList = mutableListOf<FileNameExtensionFilter>()
-        filterList.add(FileNameExtensionFilter("Format jpg", "JPG","JPEG"))
-        filterList.add(FileNameExtensionFilter("Format jpeg", "JPEG"))
+        filterList.add(FileNameExtensionFilter("Format jpg", "JPG", "JPEG"))
         filterList.add(FileNameExtensionFilter("Format png", "PNG"))
         filterList.forEach{v->fileChooser.fileFilter = v}
         val result: Int = fileChooser.showSaveDialog(null)
@@ -63,9 +63,6 @@ class SaveImage(val image : BufferedImage) : ActionListener {
             }
         }
     }
-
-
-
 
 }
 

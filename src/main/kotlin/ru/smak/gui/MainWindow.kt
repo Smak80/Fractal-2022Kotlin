@@ -65,6 +65,9 @@ open class MainWindow : JFrame() {
             add(createFileMenu())
             add(createFractalActionMenu())
             add(createAboutButton())
+
+            add(createSaveButtonImage())
+
             add(videoMenu)
 
         }
@@ -192,7 +195,9 @@ open class MainWindow : JFrame() {
                         startPoint?.let {
                             val shiftX = Converter.xScrToCrt(e.x, plane) - Converter.xScrToCrt(it.x, plane)
                             val shiftY = Converter.yScrToCrt(e.y, plane) - Converter.yScrToCrt(it.y, plane)
+                            //trgsz.shiftImageOnPanel(shiftX, shiftY, plane)
                             trgsz.shiftImage(shiftX, shiftY, plane)
+
                             makeOneToOne(plane, trgsz, mainPanel.size)
                             startPoint = e.point
                             mainPanel.repaint()
@@ -354,13 +359,17 @@ open class MainWindow : JFrame() {
         return aboutMenu
     }
 
+
     private fun createSaveButtonImage(): JMenu {
-        val btnSave = JMenu("Save...")
-        btnSave.addActionListener {
-            val img = BufferedImage(mainPanel.width, mainPanel.height + infoHeight, BufferedImage.TYPE_INT_RGB)
-            preparImg(img, mainPanel, plane)
-            SaveImage(img).actionPerformed(null)
-        }
+        val btnSave = JMenu("Save")
+        btnSave.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                super.mousePressed(e)
+                val img = BufferedImage(mainPanel.width, mainPanel.height + infoHeight, BufferedImage.TYPE_INT_RGB)
+                preparImg(img, mainPanel, plane)
+                SaveImage(img).actionPerformed(null)
+            }
+        })
         btnSave.isVisible = true
         return btnSave
     }
