@@ -535,8 +535,10 @@ open class MainWindow : JFrame() {
         return dynMenu
     }
 
-    private fun createCtrlZButton(): JMenu {
-        val ctrlZMenu = JMenu("Отменить предыдущее действие")
+
+
+    private fun createCtrlZButton(): JMenuItem {
+        val ctrlZMenu = JMenuItem("Отменить предыдущее действие")
 
         val pressed: Action = object : AbstractAction() {
             override fun actionPerformed(e: ActionEvent) {
@@ -548,8 +550,9 @@ open class MainWindow : JFrame() {
             }
         }
 
+
         ctrlZMenu.inputMap.put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx),
+            KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
             "pressed"
         )
 
@@ -558,25 +561,20 @@ open class MainWindow : JFrame() {
             pressed
         )
 
-        ctrlZMenu.addMouseListener(
-            object : MouseAdapter() {
-                override fun mouseClicked(e: MouseEvent?) {
-                    super.mouseClicked(e)
-                    if (operations.size > 0) {
-                        operations.last().rollback()
-                        operations.removeAt(operations.lastIndex)
-                        mainPanel.repaint()
-                    }
-                }
+        ctrlZMenu.addActionListener(){
+            if (operations.size > 0) {
+                operations.last().rollback()
+                operations.removeAt(operations.lastIndex)
+                mainPanel.repaint()
             }
-        )
+        }
 
         return ctrlZMenu
 
     }
 
-    private fun createRecordBtn(plane: Plane): JMenu {
-        val btn = JMenu("Record...")
+    private fun createRecordBtn(plane: Plane): JMenuItem {
+        val btn = JMenuItem("Record...")
 
         btn.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
