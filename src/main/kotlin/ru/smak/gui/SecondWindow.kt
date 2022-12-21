@@ -5,6 +5,7 @@ import ru.smak.graphics.FractalPainter
 import ru.smak.graphics.Plane
 import ru.smak.gui.MainWindow.Companion.GROW
 import ru.smak.math.FractalFuncs
+import ru.smak.math.InterfaceColor
 import ru.smak.math.Julia
 import ru.smak.math.Mandelbrot
 import java.awt.Color
@@ -16,7 +17,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
 
-class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
+class SecondWindow(colorScheme: InterfaceColor) : JFrame() {
     private var rect: Rectangle = Rectangle()
     val minSz = Dimension(1000, 600)
     val secondPanel: GraphicsPanel
@@ -137,7 +138,7 @@ class SecondWindow(colorScheme: (Float) -> Color) : JFrame() {
             )
         }
     }
-    fun changeColor(colorScheme: (Float) -> Color){
+    fun changeColor(colorScheme: InterfaceColor){
         fpj.colorFunc = colorScheme
         repaint()
     }
