@@ -56,10 +56,11 @@ open class MainWindow : JFrame() {
     private var numButtonPressed: Int = 0
     var checkbox = createDynamicIt()
 
+    val startedArea:Double
 
     init {
         plane = Plane(-2.0, 1.0, -1.0, 1.0)
-
+        startedArea = (plane.xMax-plane.xMin) * (plane.yMax-plane.yMin)
         val videoMenu = createVideoMenu()
 
         val menuBar = JMenuBar().apply {
@@ -67,6 +68,7 @@ open class MainWindow : JFrame() {
             add(createFractalActionMenu())
             add(createAboutButton())
             add(videoMenu)
+
         }
 
         jMenuBar = menuBar
@@ -168,11 +170,13 @@ open class MainWindow : JFrame() {
                             val y1 = rect.y1?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             val y2 = rect.y2?.let { Converter.yScrToCrt(it, plane) } ?: return@let
                             if (dynIt.isSelected) {
-                                val sq: Int = plane.height * plane.width
                                 val new_sq = abs(x2 - x1) * abs(y2 - y1)
-                                var d: Int = 100
-                                if (sq / new_sq < 100) d = (sq / new_sq).toInt()
-                                Mandelbrot.maxIterations += 100
+                                var d = (1800.0*(1.0-Math.sqrt(Math.sqrt(Math.sqrt(new_sq /(startedArea)))))).toInt()
+                                if (dynIt.isSelected==true) {
+                                    Mandelbrot.maxIterations =200+d
+                                    println(Mandelbrot.maxIterations)
+                                }
+
                             }
                             makeOneToOne(
                                 plane,
@@ -576,7 +580,7 @@ open class MainWindow : JFrame() {
 
 
         ctrlZMenu.inputMap.put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
+            KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx),
             "pressed"
         )
 
@@ -584,7 +588,6 @@ open class MainWindow : JFrame() {
             "pressed",
             pressed
         )
-
 
         ctrlZMenu.addActionListener(){
             if (operations.size > 0) {
