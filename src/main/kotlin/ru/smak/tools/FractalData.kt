@@ -7,6 +7,7 @@ data class FractalData(
     var xMax: Double,
     var yMin: Double,
     var yMax: Double,
+    var fractalFuncIndex: Int,
     var colorFuncIndex: Int,
     var isDynamical: Boolean,
     var maxIterations: Int
